@@ -103,11 +103,11 @@ This repository is divided as following:
 
 ## Planned updates
 
-The following updates are planned for mid 2027:
+The following updates are planned for end of 2027:
 
 - Desktop app that will allow to use the pipeline outside the Command Line.
 - Support for other languages aside from english.
-- Include more models for sentyment analysis aside from _cardiffnlp/twitter-roberta-base-sentiment_ trained with different data.
+- Include more models for sentyment classification aside from _cardiffnlp/twitter-roberta-base-sentiment_ and give the user the ability to choose the one that better fits it's data.
 
 ## Citations
 
