@@ -103,7 +103,7 @@ This repository is divided as following:
 
 ## Version
 
-This is version 0.1.0
+This is version v0.1.0-alpha.
 
 ## Planned updates
 
