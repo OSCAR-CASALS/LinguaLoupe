@@ -101,6 +101,10 @@ This repository is divided as following:
 - For sentyment classification pretrained model _cardiffnlp/twitter-roberta-base-sentiment_ was used.
 - For Topic modelling BERTopic was used.
 
+## Version
+
+This is version 0.1.0
+
 ## Planned updates
 
 The following updates are planned for end of 2027:
