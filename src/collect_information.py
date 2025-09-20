@@ -1,43 +1,40 @@
 '''
-
+File containing the function in charge of summarizing information.
 '''
 
 import pandas as pd
 
-def get_information(product_dataframe, review_dataframe, title, description, category):
+def summerize_information(review_dataframe, title, groups_to_count_reviews=[], columns_to_mean_review=[], columns_to_sum_reviews = []):
     '''
-    Summerize product and review information for a proposal into a dataframe of 1 row
-    :param product_dataframe: product DataFram just as outputed by preprocess_products
-    :param review_dataframe: review DataFrame just as outputed by process_reviews
-    :param title: string with the title of the string
-    :param description: description of the proposal
-    :param category: category to which the proposal belongs to
-    :return:
-    dataFrame ---- Single row pandas DataFrame with summerised information about products similar to the proposal.
+    Summerize text dataframe information into a dataframe of 1 row
     '''
-    # Creating datframe
+    # Creating summary datframe
     df = pd.DataFrame(index=[0])
-    # Adding variables defined by user in datframe
-    df["title"] = title
-    df["description"] = description
-    df["category"] = category
-    # Counting ammount of positive, neutral and negative reviews
-    count_emotions = review_dataframe["emotion"].value_counts()
-    df["positive_reviews"] = count_emotions.get("POSITIVE", 0)
-    df["neutral_reviews"] = count_emotions.get("NEUTRAL", 0)
-    df["negative_reviews"] = count_emotions.get("NEGATIVE", 0)
-    # Computing average price
-    df["average_price"] = product_dataframe["price_euros"].mean()
-    # Seting average ratings
-    df["average_rating"] = product_dataframe["average_rating"].mean()
-    df["average_review_rating"] = review_dataframe["rating"].mean()
-    # Counting verified purchases
-    df["amount_of_verified_purchases"] = review_dataframe["verified_purchase"].sum()
-    # Quantity of ratings
-    df["rating_number"] = product_dataframe["rating_number"].sum()
+
+    # Adding title and description if present
+    df["Title"] = title
+    
+    # Counting groups and adding them to the summary dataframe
+    def add_dataframe(x, df_counts, dataframe_name):
+        #print(x)
+        df[f"ammount_of_{x}"] = df_counts[df_counts["Group"] == x]["Count"].values[0]
+        
+    for i in groups_to_count_reviews:
+        counts_column = review_dataframe[i].value_counts().reset_index()
+        counts_column.columns = ["Group", "Count"]
+        counts_column["Group"].map(lambda y : add_dataframe(y, df_counts=counts_column, dataframe_name = "reviews"))
+
+    # Averaging the columns specified to do so
+        
+    for i in columns_to_mean_review:
+        df[f"average_{i}"] = review_dataframe[i].mean()
+
+    # Columns to sum
+
+    for i in columns_to_sum_reviews:
+        df[f"count_{i}"] = review_dataframe[i].sum()
+
     # Review number is the number of rows in the review dataframe
-    df["review_number"] = len(review_dataframe)
-    # Saving unique parent IDs.
-    df["parent_ids"] = ", ".join(product_dataframe["parent_id"].unique().tolist())
+    df["Number of texts"] = review_dataframe.shape[0]
 
     return df
