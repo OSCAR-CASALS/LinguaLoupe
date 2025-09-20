@@ -107,10 +107,11 @@ This is version 0.1.0
 
 ## Planned updates
 
+On October 1 support for other languages aside from english will be included.
+
 The following updates are planned for end of 2027:
 
 - Desktop app that will allow to use the pipeline outside the Command Line.
-- Support for other languages aside from english.
 - Include more models for sentyment classification aside from _cardiffnlp/twitter-roberta-base-sentiment_ and give the user the ability to choose the one that better fits it's data.
 
 ## Citations
