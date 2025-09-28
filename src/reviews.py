@@ -11,7 +11,7 @@ from src.sentiment import load_roberta_classification_model, classify_text_senti
 import swifter
 import warnings
 
-def process_reviews(data_path, text_column, products_selected = None, product_title_column = None, csv_sep = ",",
+def process_reviews(data_path, text_column, csv_sep = ",",
                     min_rows_to_parallelize = 10000, cancel_parallelisation = False, columns_to_keep = [],
                     convert_to_string = False, divide_in_chunks = 512):
     '''
@@ -49,14 +49,6 @@ def process_reviews(data_path, text_column, products_selected = None, product_ti
             data[text_column] = data[text_column].astype(str)
         else:
             raise TypeError("The text of each review must be in string format.")
-
-    # Filtering those reviews with a parent id of interest
-    if (product_title_column is not None) and (products_selected is not None):
-        data = data[data[product_title_column].isin(products_selected)]
-
-        # Renaming column so it matches the rest of the pipeline
-
-        data = data.rename(columns = {product_title_column: "product_title"})
 
     # loading model
     model = load_roberta_classification_model()
@@ -138,9 +130,6 @@ def process_reviews(data_path, text_column, products_selected = None, product_ti
     data = data.rename(columns = {text_column: "text"})
 
     # Selecting only columns of interest
-    if product_title_column is not None:
-        data = data[["product_title", "text","emotion", "emotion_score"] + columns_to_keep]
-    else:
-        data = data[["text","emotion", "emotion_score"] + columns_to_keep]
+    data = data[["text","emotion", "emotion_score"] + columns_to_keep]
 
     return data

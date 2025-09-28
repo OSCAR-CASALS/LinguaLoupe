@@ -8,7 +8,9 @@ def load_roberta_classification_model():
     '''
     Load classification model Roberta
     '''
+    
     model_name = "cardiffnlp/twitter-roberta-base-sentiment"
+    #model_name = "cardiffnlp/twitter-xlm-roberta-base-sentiment"
 
     tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=True)
     model = AutoModelForSequenceClassification.from_pretrained(model_name)

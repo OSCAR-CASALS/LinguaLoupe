@@ -20,8 +20,7 @@ def run_sentiment_pipeline(text_data, title, text_col, cols_keep_text,
     # Classify sentiments into negative, positive and neutral.
     print("Classifiying text into emotions...")
     reviews = process_reviews(text_data,
-                            text_col, products_selected = None,
-                            product_title_column=None, columns_to_keep=cols_keep_text, csv_sep=csv_sep,
+                            text_col, columns_to_keep=cols_keep_text, csv_sep=csv_sep,
                             min_rows_to_parallelize=min_rows_par, cancel_parallelisation=cancel_par, divide_in_chunks=ch_size,
                             convert_to_string=False)
     
