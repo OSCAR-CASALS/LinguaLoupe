@@ -113,5 +113,7 @@ The following updates are planned for end of 2027:
 - Barbieri, F., Camacho-Collados, J., Espinosa Anke, L., & Neves, L. (2020). TweetEval: Unified Benchmark and Comparative Evaluation for Tweet Classification. In Findings of the Association for Computational Linguistics: EMNLP 2020 (pp. 1644–1650). Association for Computational Linguistics.
 
 - Grootendorst, M. (2022). BERTopic: Neural topic modeling with a class-based TF-IDF procedure. arXiv preprint arXiv:2203.05794.
+  
+- Pérez, J. M., Rajngewerc, M., Giudici, J. C., Furman, D. A., Luque, F., Alemany, L. A., & Martínez, M. V. (2023). pysentimiento: A Python Toolkit for Opinion Mining and Social NLP tasks. arXiv [Cs.CL]. Retrieved from http://arxiv.org/abs/2106.09462
 
 
