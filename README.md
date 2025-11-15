@@ -35,13 +35,12 @@ Additionally, you can set the following parameters so the report and csv files g
 |-gct                   |--group_to_count_text      |GROUP_TO_COUNT_TEXT      |Columns in TEXT_DATA to count the number of different appereances, the result will be found in _Summary.csv_.|
 |-mt                    |--mean_text                |MEAN_TEXT                |Columns in TEXT_DATA to compute the mean of in _Summary.csv_.|
 |-st                    |--sum_text                 |SUM_TEXT                 |Columns in TEXT_DATA to sum in _Summary.csv_.|
-|-umap_colour           |--umap_colour              |UMAP_COLOUR              |Column in TEXT_DATA by which the umap shown in the report will be colored by.|
+|-umap_colour           |--umap_colour              |UMAP_COLOUR              |Column in COLUMNS_TO_KEEP_TEXT by which the umap shown in the report will be colored by, this parameter can be specified more than once in case you want to generate multiple UMAPs coloured by different values.|
 |-csv_sep               |--csv_separation           |CSV_SEPARATION           |In case a csv file is used as input, specify the separation between values, it will be "," by default.|
 |-min_rows_paralllelize |--minimum_rows_paralllelize|MINIMUM_ROWS_PARALLLELIZE|Minimum ammount of rows there must be for the program to parallelize computations via swifter, it will be 10,000 rows by default.|
-|-cancel_parallelisation|--cancel_parallelisation   |CANCEL_PARALLELISATION   |Wether to avoid parallelisation with Swifter (True) or not (False) once a certain number of rows is found in TEXT_DATA, it will be False by default.|
 |-chunk_size            |--chunk_size               |CHUNK_SIZE               |Chunk size in which each text will be divided when performing sentiment classification.|
 |-min_topic_size        |--minimum_topic_size       |MINIMUM_TOPIC_SIZE       |The minimum size of a topic. Increasing this value will lead to a lower number of clusters/topics and vice versa.|
-|-lang                  |--language                 |LANGUAGE                 |The main language used in your documents, currently only "english" is supported.|
+|-lang                  |--language                 |LANGUAGE                 |The main language used in your documents, it can be: 'english' (default), 'spanish', or 'portuguese'.|
 |-umap_metric           |--umap_metric              |UMAP_METRIC              |Metric to be used when computing distances for umap, will be cosine by default. You can check all avalaible metrics here: https://umap-learn.readthedocs.io/en/latest/parameters.html|
 |-umap_n_neighbours     |--umap_n_neighbours        |UMAP_N_NEIGHBOURS        |Number of approximate nearest neighbors used to construct the UMAP, 15 by default.|
 |-umap_min_dist         |--umap_min_dist            |UMAP_MIN_DIST            |Minimum distance apart that points are allowed to be in the umap, 0.1 by default.|
@@ -49,7 +48,7 @@ Additionally, you can set the following parameters so the report and csv files g
 Below there is an example on how to use the pipeline:
 
 ```
-python LinguaLoupe.py -ti Review_Analysis -t data.csv -text_c reviews -ckt rating -min_topic_size 100 -o results -umap_colour rating
+python LinguaLoupe.py -ti Review_Analysis -t data.csv -text_c reviews -ckt rating -min_topic_size 100 -o results -umap_colour rating -umap_colour country
 ```
 
 

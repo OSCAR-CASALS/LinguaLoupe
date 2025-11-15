@@ -11,7 +11,7 @@ import os
 
 def run_sentiment_pipeline(text_data, title, text_col, cols_keep_text,
                            count_text_group, mean_text_cols, sum_text_cols,
-                           output_directory, csv_sep, min_rows_par, cancel_par, ch_size, m_topic_size, lang, umap_colour = "emotion",
+                           output_directory, csv_sep, min_rows_par, cancel_par, ch_size, m_topic_size, lang, umap_colour = ["emotion"],
                            umap_metric="cosine", umap_neighbours = 15, umap_minimum_distance = 0.1):
     '''
     Run LinguaLoupe pipeline
@@ -22,7 +22,7 @@ def run_sentiment_pipeline(text_data, title, text_col, cols_keep_text,
     reviews = process_reviews(text_data,
                             text_col, columns_to_keep=cols_keep_text, csv_sep=csv_sep,
                             min_rows_to_parallelize=min_rows_par, cancel_parallelisation=cancel_par, divide_in_chunks=ch_size,
-                            convert_to_string=False)
+                            convert_to_string=False, language=lang)
     
     # Perform topic modelling
     print("Dividing text into topics...")

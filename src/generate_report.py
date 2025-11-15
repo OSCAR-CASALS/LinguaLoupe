@@ -8,10 +8,23 @@ import plotly.express as px
 import plotly.io as pio
 import plotly.graph_objects as go
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+from nltk.corpus import stopwords
+import nltk
 import umap
 import umap.plot
 
-def generate_report(title, review_dataframe, topic_models, lang="english", path = "", umap_summ_color = "emotion",
+
+def install_stopwords():
+    '''
+    Check if user has nltk.corpus.stopwords install and, if not, install it.
+    '''
+    try:
+        stopwords.words('english')
+    except LookupError:
+        nltk.download("stopwords")
+
+
+def generate_report(title, review_dataframe, topic_models, lang="english", path = "", umap_summ_color = ["emotion"],
                     umap_met="cosine", neighbours_umap = 15, min_dist_umap = 0.1):
     '''
     Generate html report for an exploratory sentiment and topic analysis.
@@ -130,10 +143,16 @@ button:hover{
   font-family: sans-serif;
   color: black;
 }
+
+.Umap_General{
+    display: none;
+    width: 100%;
+}
 '''
 
     # HTML template script
 
+    # Function to hide and show topic words
     hide_button_function = '''{
     let el = document.getElementById(id_element);
     let b = document.getElementById(id_but);
@@ -148,6 +167,20 @@ button:hover{
 }
 '''
 
+    #Function to display the right umap
+    first_umap_col = f'"umap_{umap_summ_color[0]}_id"'
+    display_umap_function = '''{
+    let prevEl = document.getElementById(previous_display_umap);
+    prevEl.style.display = "none";
+
+    let el = document.getElementById(id_element);
+    el.style.display = "block";
+
+    previous_display_umap = id_element;
+}
+'''
+    # Function to show first umap once html is loaded
+    onLoad_html = 'window.onload = function(){document.getElementById(previous_display_umap).style.display = "block";}'
     # HTML template
 
     html_template = f'''
@@ -169,7 +202,10 @@ button:hover{
     {css_template}
     </style>
     <script>
+        let previous_display_umap = {first_umap_col};
+        {onLoad_html}
         function HideButton(id_element, id_but){hide_button_function}
+        function DisplayRightUmap(id_element){display_umap_function}
     </script>
 </head>
 <body>
@@ -379,19 +415,50 @@ button:hover{
 
     # Dimensionality reduction visualisation UMAP
 
-    tfidf_vectorizer = TfidfVectorizer(min_df=5, stop_words=lang)
+    tfidf_vectorizer = TfidfVectorizer(min_df=5, stop_words=stopwords.words(lang))
     tfidf_word_doc_matrix = tfidf_vectorizer.fit_transform(review_dataframe["text"])
     tfidf_umap = umap.UMAP(n_components=2,metric=umap_met, min_dist=min_dist_umap, n_neighbors=neighbours_umap)
     tfidf_embedding = tfidf_umap.fit_transform(tfidf_word_doc_matrix)
     
-    umap_fig_em = px.scatter(tfidf_embedding[:,0], tfidf_embedding[:,1], color=review_dataframe[umap_summ_color], color_discrete_map=emotion_colours,
-                             title="UMAP")
-    umap_fig_em.update_layout(title = {
-        'text': '<b>UMAP</b>',
-        'font': {'size': 24, 'family': 'Arial', 'color': 'black'},  # Size and font
-        'x': 0.5,  # Centered title
-    })
-    umap_fig_em_div = pio.to_html(umap_fig_em, full_html=False, include_plotlyjs="cdn")
+    # Colour umap by different columns
+
+    # select to decide which umap to show
+
+    select_umaps_dropdown = 'Color by: <select onchange="DisplayRightUmap(this.value)">'
+
+    umaps_Divs = ""
+
+    for variable in umap_summ_color:
+        # Create scatter plot from umap coloring by variable
+        umap_fig_em = px.scatter(tfidf_embedding[:,0], tfidf_embedding[:,1], color=review_dataframe[variable], color_discrete_map=emotion_colours,
+                             title=variable)
+    
+        umap_fig_em.update_layout(title = {
+            'text': '<b>UMAP</b>',
+            'font': {'size': 24, 'family': 'Arial', 'color': 'black'},  # Size and font
+            'x': 0.5,  # Centered title
+        })
+        
+        # Create div that will contain the umap
+        umap_fig_em_div = pio.to_html(umap_fig_em, full_html=False, include_plotlyjs="cdn")
+
+        id_umap = f"umap_{variable}_id"
+        select_umaps_dropdown += f'<option value="{id_umap}">{variable}</option>'
+
+
+        div_umap = f'''
+        <div id="{id_umap}" class="Umap_General">
+        {umap_fig_em_div}
+        </div>
+'''
+        
+        umaps_Divs += div_umap
+        
+    # Close select
+    select_umaps_dropdown += "</select>"
+
+    # Segment of html that shows general information without the umap.
+
     html_summary = f'''
     <div>
         <h2 id="Summary">Summary</h2>
@@ -401,11 +468,14 @@ button:hover{
         <h3 id="WordCount">Amount of words per emotion</h3>
         <p>Boxplot showing the amount of words each text has, text have been divided by emotion.</p>
         {boxplot_review_length_div}
-        <h3 id="UmapEmotions">Umap reviews colored by emotion</h3>
+        <h3 id="UmapEmotions">Umap reviews</h3>
         <p>A UMAP to see how similar the text of each emotion are.</p>
-        {umap_fig_em_div}
-    </div>
+        {select_umaps_dropdown}
+        {umaps_Divs}
 '''
+
+    # Adding umaps to general section of html and closing the div
+    html_summary += "</div>"
 
     emotion_sections = []
 

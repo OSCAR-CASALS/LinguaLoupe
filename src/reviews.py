@@ -7,13 +7,13 @@ from pathlib import Path
 from transformers import AutoTokenizer
 import statistics
 import pandas as pd
-from src.sentiment import load_roberta_classification_model, classify_text_sentiment
+from src.sentiment import load_roberta_classification_model, classify_text_sentiment, classify_text_pysentimiento
 import swifter
 import warnings
 
 def process_reviews(data_path, text_column, csv_sep = ",",
                     min_rows_to_parallelize = 10000, cancel_parallelisation = False, columns_to_keep = [],
-                    convert_to_string = False, divide_in_chunks = 512):
+                    convert_to_string = False, divide_in_chunks = 512, language = "english"):
     '''
     A function in charge of classifiying texts into positive, negative, or neutral.
     '''
@@ -51,7 +51,7 @@ def process_reviews(data_path, text_column, csv_sep = ",",
             raise TypeError("The text of each review must be in string format.")
 
     # loading model
-    model = load_roberta_classification_model()
+    model = load_roberta_classification_model(language=language)
 
     # Determining if parallelization is required or not
     use_swifter = False
@@ -59,6 +59,19 @@ def process_reviews(data_path, text_column, csv_sep = ",",
         use_swifter = True
 
     tokenizer = AutoTokenizer.from_pretrained("cardiffnlp/twitter-roberta-base-sentiment", use_fast=True)
+
+    # Decide wether to use text classification based on pysentimiento or Roberta.
+
+    def classify(text_to_classify):
+        '''
+        Classify text into POSITIVE, NEGATIVE, or NEUTRAL using either pysentimiento or cardiffnlp/twitter-roberta-base-sentiment
+        '''
+
+        if language == "english":
+            return classify_text_sentiment(text_to_classify, model)
+        
+        return classify_text_pysentimiento(text_to_classify, model, language)
+
     def classify_sentiments(text):
         '''
         Function that performs Sentiment classification.
@@ -72,18 +85,19 @@ def process_reviews(data_path, text_column, csv_sep = ",",
             labels_to_numbers = {
                 "NEGATIVE": 0,
                 "NEUTRAL": 1,
-                "POSITIVE": 2
+                "POSITIVE": 2,
+                "MIXED": 3
             }
             # To know which classification has been selected the most, a list with 3 zeros has been created, each
             # corresponding to a sentiment (negative, neutral and positive). Everytime a classification is made,
             # 1 is added to the corresponding indes. Once all classifications have been made, it is just a mater of selecting the biggest
             # number
-            sents = [0, 0, 0]
-            scores = [[], [], []]
+            sents = [0, 0, 0, 0]
+            scores = [[], [], [], []]
             c = 0
             for i in range(0, len(text), divide_in_chunks):
                 if (i + divide_in_chunks) < (len(text) - 1):
-                    classification = classify_text_sentiment(text[i:i + divide_in_chunks], model)
+                    classification = classify(text[i:i + divide_in_chunks])
                     index_list = labels_to_numbers[classification["label"]]
                     sents[index_list] += 1
                     scores[index_list].append(classification["score"])
@@ -103,11 +117,13 @@ def process_reviews(data_path, text_column, csv_sep = ",",
             for i in chosen_sentiments:
                 result_sents.append(list(labels_to_numbers.keys())[i])
                 result_scores.append(statistics.mean(scores[i]))
-            return ['-'.join(result_sents), result_scores]
+            if "MIXED" not in result_sents:
+                return ['-'.join(result_sents), result_scores]
+            return ["NEGATIVE-POSITIVE", result_scores]
         # If the text has less than 512 tokens, just classify the whole text with Roberta.
         # The scores are returned in a list for consistency with the results of text with
         # a high ammount of tokens.
-        sentiment = classify_text_sentiment(text, model)
+        sentiment = classify(text)
         return [sentiment["label"], [sentiment["score"]]]
 
     # Use swifter to classify all descriptions using multithreading or just do an apply in case

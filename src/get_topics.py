@@ -85,6 +85,7 @@ def review_topics(df, review_column = "text",emotion_column = "emotion", min_top
     neg_net_results = []
     neg_pos_results = []
     net_pos_results = []
+    mixed_results = []
     all_results = []
 
     # List that will be used to concatenate all reviews with their respective topics into a dataframe
