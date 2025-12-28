@@ -40,7 +40,7 @@ Additionally, you can set the following parameters so the report and csv files g
 |-min_rows_paralllelize |--minimum_rows_paralllelize|MINIMUM_ROWS_PARALLLELIZE|Minimum ammount of rows there must be for the program to parallelize computations via swifter, it will be 10,000 rows by default.|
 |-chunk_size            |--chunk_size               |CHUNK_SIZE               |Chunk size in which each text will be divided when performing sentiment classification.|
 |-min_topic_size        |--minimum_topic_size       |MINIMUM_TOPIC_SIZE       |The minimum size of a topic. Increasing this value will lead to a lower number of clusters/topics and vice versa.|
-|-lang                  |--language                 |LANGUAGE                 |The main language used in your documents, it can be: 'english' (default), 'spanish', or 'portuguese'.|
+|-lang                  |--language                 |LANGUAGE                 |The main language used in your documents, it can be: 'english' (default) or 'spanish'.|
 |-umap_metric           |--umap_metric              |UMAP_METRIC              |Metric to be used when computing distances for umap, will be cosine by default. You can check all avalaible metrics here: https://umap-learn.readthedocs.io/en/latest/parameters.html|
 |-umap_n_neighbours     |--umap_n_neighbours        |UMAP_N_NEIGHBOURS        |Number of approximate nearest neighbors used to construct the UMAP, 15 by default.|
 |-umap_min_dist         |--umap_min_dist            |UMAP_MIN_DIST            |Minimum distance apart that points are allowed to be in the umap, 0.1 by default.|
