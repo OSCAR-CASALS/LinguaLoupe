@@ -5,7 +5,7 @@ Script containing functions to load and use roberta pretrained models.
 from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification, CamembertTokenizer
 from pysentimiento import create_analyzer
 
-def load_roberta_classification_model(language = "english"):
+def load_classification_model(language = "english"):
     '''
     Load classification model Roberta
     '''

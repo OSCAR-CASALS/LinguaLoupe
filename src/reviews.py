@@ -7,8 +7,7 @@ from pathlib import Path
 from transformers import AutoTokenizer
 import statistics
 import pandas as pd
-from src.sentiment import load_roberta_classification_model, classify_text_sentiment, classify_text_pysentimiento
-import swifter
+from src.sentiment import load_classification_model, classify_text_sentiment, classify_text_pysentimiento
 import warnings
 
 def process_reviews(data_path, text_column, csv_sep = ",",
@@ -51,14 +50,14 @@ def process_reviews(data_path, text_column, csv_sep = ",",
             raise TypeError("The text of each review must be in string format.")
 
     # loading model
-    model = load_roberta_classification_model(language=language)
+    model = load_classification_model(language=language)
 
-    # Determining if parallelization is required or not
-    use_swifter = False
-    if (data.shape[0] >= min_rows_to_parallelize) and (cancel_parallelisation == False):
-        use_swifter = True
-
-    tokenizer = AutoTokenizer.from_pretrained("cardiffnlp/twitter-roberta-base-sentiment", use_fast=True)
+    # Loading appropiate tokenizer just to check if the length of the text to classify exceeds 512.
+    if language == "english":
+        tokenizer = AutoTokenizer.from_pretrained("cardiffnlp/twitter-roberta-base-sentiment", use_fast=True)
+    else:
+        tokenizer = AutoTokenizer.from_pretrained("pysentimiento/robertuito-sentiment-analysis", use_fast=True)
+        
 
     # Decide wether to use text classification based on pysentimiento or Roberta.
 
@@ -126,12 +125,8 @@ def process_reviews(data_path, text_column, csv_sep = ",",
         sentiment = classify(text)
         return [sentiment["label"], [sentiment["score"]]]
 
-    # Use swifter to classify all descriptions using multithreading or just do an apply in case
-    # the data does not have many rows.
-    if use_swifter == True:
-        data["review_emotion"] = data[text_column].swifter.apply(classify_sentiments)
-    else:
-        data["review_emotion"] = data[text_column].apply(classify_sentiments)
+    # Classify texts into emotions.
+    data["review_emotion"] = data[text_column].apply(classify_sentiments)
 
     # Dividing review emotion into two columns, one with the label assifgned by classify_text_sentiment and the
     # other with the score assigned to the classification.

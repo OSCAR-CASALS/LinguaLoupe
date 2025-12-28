@@ -13,6 +13,11 @@ import nltk
 import umap
 import umap.plot
 
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
+import base64
+from io import BytesIO
+
 
 def install_stopwords():
     '''
@@ -240,6 +245,22 @@ button:hover{
     def generate_html_for_emotion(em):
         # Dataframe emotions
         em_df = review_dataframe[review_dataframe["emotion"] == em]
+
+        # Create a Word c¡Cloud of all texts associated with that emotion
+        all_texts_single_string = " ".join(review for review in em_df["text"])
+        stopwords_word_cloud = stopwords.words(lang)
+        wordcloud = WordCloud(stopwords=stopwords_word_cloud, background_color="white").generate(all_texts_single_string)
+        
+        fig, ax = plt.subplots()
+        ax.imshow(wordcloud, interpolation='bilinear')
+        ax.axis("off")
+
+        tmpfile = BytesIO()
+        fig.savefig(tmpfile, format='png')
+        html_str_wordcloud = base64.b64encode(tmpfile.getvalue()).decode('utf-8')
+
+        #html_str_wordcloud = mpld3.fig_to_html(fig)
+
         # Trigrams
         cv = CountVectorizer(ngram_range=(3, 3), max_features=5000, min_df=5)
         bigrams = cv.fit_transform(em_df["text"])
@@ -354,6 +375,9 @@ button:hover{
         res = f'''
         <div>
             <h3 id="Semtinment{em}">{em}</h3>
+            <h4>Word Cloud</h4>
+            <p>Word Cloud of all text associated with this emotion.</p>
+            <img src='data:image/png;base64,{html_str_wordcloud}'>
             <h4>Top 10 most frequent Trigrams</h4>
             {bigram_plot_div}
             <h4 id="TopicFreqs{em}">Topic Counts</h4>

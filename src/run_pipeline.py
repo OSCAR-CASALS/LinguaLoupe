@@ -57,4 +57,4 @@ def run_sentiment_pipeline(text_data, title, text_col, cols_keep_text,
     
     return generate_report(title=title, review_dataframe=topics[-1], topic_models=topics[0],
                            path=output_directory, umap_summ_color=umap_colour, umap_met=umap_metric,
-                           neighbours_umap=umap_neighbours, min_dist_umap=umap_minimum_distance)
+                           neighbours_umap=umap_neighbours, min_dist_umap=umap_minimum_distance, lang=lang)
