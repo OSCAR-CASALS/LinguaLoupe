@@ -10,9 +10,15 @@ import pandas as pd
 from src.sentiment import load_classification_model, classify_text_sentiment, classify_text_pysentimiento
 import warnings
 
+from bs4 import BeautifulSoup
+
+def clean_html(text):
+    return BeautifulSoup(text, "html.parser").get_text()
+
 def process_reviews(data_path, text_column, csv_sep = ",",
                     min_rows_to_parallelize = 10000, cancel_parallelisation = False, columns_to_keep = [],
-                    convert_to_string = False, divide_in_chunks = 512, language = "english"):
+                    convert_to_string = False, divide_in_chunks = 512, language = "english", m_type="social_media",
+                    clean_html_text = True):
     '''
     A function in charge of classifiying texts into positive, negative, or neutral.
     '''
@@ -42,19 +48,29 @@ def process_reviews(data_path, text_column, csv_sep = ",",
     else:
         raise TypeError("data_path can only be a string or a pandas dataframe")
 
-    # Checking the product description of each product is in string format
+    # Checking the text column is in string format
     if pd.api.types.infer_dtype(data[text_column]) != "string":
         if convert_to_string == True:
             data[text_column] = data[text_column].astype(str)
         else:
             raise TypeError("The text of each review must be in string format.")
+        
+    # Cleaning html from text column unless specified otherwise
+    if clean_html_text == True:
+        data[text_column] = data[text_column].apply(clean_html)
+
+    # Removing texts that do not contain at least one alphabetic character, or are NA.
+    data = data[data[text_column].str.contains(r"[A-Za-z]", na=False)]
 
     # loading model
-    model = load_classification_model(language=language)
+    model = load_classification_model(language=language, model_type=m_type)
 
     # Loading appropiate tokenizer just to check if the length of the text to classify exceeds 512.
     if language == "english":
-        tokenizer = AutoTokenizer.from_pretrained("cardiffnlp/twitter-roberta-base-sentiment", use_fast=True)
+        if m_type == "social_media":
+            tokenizer = AutoTokenizer.from_pretrained("cardiffnlp/twitter-roberta-base-sentiment", use_fast=True)
+        else:
+            tokenizer = AutoTokenizer.from_pretrained("siebert/sentiment-roberta-large-english", use_fast=True)
     else:
         tokenizer = AutoTokenizer.from_pretrained("pysentimiento/robertuito-sentiment-analysis", use_fast=True)
         
@@ -67,7 +83,7 @@ def process_reviews(data_path, text_column, csv_sep = ",",
         '''
 
         if language == "english":
-            return classify_text_sentiment(text_to_classify, model)
+            return classify_text_sentiment(text_to_classify, model, model_type=m_type)
         
         return classify_text_pysentimiento(text_to_classify, model, language)
 

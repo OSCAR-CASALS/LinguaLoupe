@@ -6,12 +6,18 @@ from bertopic import BERTopic
 from bertopic.representation import KeyBERTInspired
 import pandas as pd
 import warnings
-def load_BERT(lang = "english", min_topic_size=10):
+from umap import UMAP
+
+def load_BERT(lang = "english", min_topic_size=10, n_neighbors=15, n_components=5, low_memory = True):
     '''
     Creates a BERTtopic model using topic representation KeyBERTInspired.
     '''
+    # Defining umap model for BERTopic
+    umap_model = UMAP(n_neighbors=n_neighbors, n_components=n_components, metric='cosine', low_memory=low_memory, init='random')
+
+    # Creating BERTopic model
     representation_model = KeyBERTInspired()
-    return BERTopic(language=lang, verbose=True, representation_model=representation_model, min_topic_size=min_topic_size)
+    return BERTopic(language=lang, verbose=True, representation_model=representation_model, min_topic_size=min_topic_size, umap_model=umap_model)
 
 def get_topics(model, df, reviews_columns):
     '''
@@ -20,12 +26,12 @@ def get_topics(model, df, reviews_columns):
     docs = df[reviews_columns].to_list()
     return model.fit_transform(docs)
 
-def topic_modelling(df, review_columns, min_topic_size=10, language="english"):
+def topic_modelling(df, review_columns, min_topic_size=10, language="english", n_neighbors=15, n_components=5, low_memory= True):
     '''
     Classifies reviews in different topics.
     '''
     # Loading model and dividing in topics
-    topic_model = load_BERT(min_topic_size=min_topic_size, lang=language)
+    topic_model = load_BERT(min_topic_size=min_topic_size, lang=language, n_neighbors=n_neighbors, n_components=n_components, low_memory=low_memory)
     topic, probs = get_topics(topic_model, df, review_columns)
 
     # Adding the topic number and the probability of belonging to se topic to each review.
@@ -47,7 +53,7 @@ def topic_modelling(df, review_columns, min_topic_size=10, language="english"):
         reduced_topic_size = int(min_topic_size/2)
         if reduced_topic_size >= 2:
             warnings.warn(f"No topics identified for the dataframe, triying again reducing by half the min_topic_size({reduced_topic_size})")
-            return topic_modelling(df, review_columns, reduced_topic_size, language=language)
+            return topic_modelling(df, review_columns, reduced_topic_size, language, n_neighbors, n_components, low_memory)
         warnings.warn("Could not find topics for the dataframe")
     # Getting most important words for each topic
     main_words = []
@@ -74,7 +80,7 @@ def topic_modelling(df, review_columns, min_topic_size=10, language="english"):
 
     return topic_model, top_topics
 
-def review_topics(df, review_column = "text",emotion_column = "emotion", min_topic_size=10, language="english"):
+def review_topics(df, review_column = "text",emotion_column = "emotion", min_topic_size=10, language="english", n_neighbors=15, n_components=5, low_memory= True):
     '''
     Divide positive, neutral and negative texts into topics.
     '''
@@ -93,10 +99,15 @@ def review_topics(df, review_column = "text",emotion_column = "emotion", min_top
     concat_df = []
     resulting_df = [{}, {}]
 
+    # Classifiying all texts into topics globally first
+    Global_Topics = topic_modelling(df, review_column, min_topic_size=min_topic_size, language=language, n_neighbors=n_neighbors, n_components=n_components, low_memory=low_memory)
+
+    df.rename(columns={'topic': 'global_topic', 'probability_topic': 'global_probability_topic'}, inplace=True)
+
     # Classify positive reviews into topics.
     df_positive = df[df[emotion_column] == "POSITIVE"]
     if df_positive.shape[0] > 0:
-        positive_results = topic_modelling(df_positive, review_column, min_topic_size=min_topic_size, language=language)
+        positive_results = topic_modelling(df_positive, review_column, min_topic_size=min_topic_size, language=language, n_neighbors=n_neighbors, n_components=n_components, low_memory=low_memory)
         concat_df.append(df_positive)
         resulting_df[0]["POSITIVE"] = positive_results
         resulting_df[1]["POSITIVE"] = df_positive
@@ -104,7 +115,7 @@ def review_topics(df, review_column = "text",emotion_column = "emotion", min_top
     # Classify neutral reviews into topics
     df_neutral = df[df[emotion_column] == "NEUTRAL"]
     if df_neutral.shape[0] > 0:
-        neutral_results = topic_modelling(df_neutral, review_column, min_topic_size=min_topic_size, language=language)
+        neutral_results = topic_modelling(df_neutral, review_column, min_topic_size=min_topic_size, language=language, n_neighbors=n_neighbors, n_components=n_components, low_memory=low_memory)
         concat_df.append(df_neutral)
         resulting_df[0]["NEUTRAL"] = neutral_results
         resulting_df[1]["NEUTRAL"] = df_neutral
@@ -112,7 +123,7 @@ def review_topics(df, review_column = "text",emotion_column = "emotion", min_top
     # Classify negative reviews into topics
     df_negative = df[df[emotion_column] == "NEGATIVE"]
     if df_negative.shape[0] > 0:
-        negative_results = topic_modelling(df_negative, review_column, min_topic_size=min_topic_size, language=language)
+        negative_results = topic_modelling(df_negative, review_column, min_topic_size=min_topic_size, language=language, n_neighbors=n_neighbors, n_components=n_components, low_memory=low_memory)
         concat_df.append(df_negative)
         resulting_df[0]["NEGATIVE"] = negative_results
         resulting_df[1]["NEGATIVE"] = df_negative
@@ -120,7 +131,7 @@ def review_topics(df, review_column = "text",emotion_column = "emotion", min_top
     # Classify reviews that could be either negative or positive
     df_neg_pos = df[df[emotion_column] == "NEGATIVE-POSITIVE"]
     if df_neg_pos.shape[0] > 0:
-        neg_pos_results = topic_modelling(df_neg_pos, review_column, min_topic_size=min_topic_size, language=language)
+        neg_pos_results = topic_modelling(df_neg_pos, review_column, min_topic_size=min_topic_size, language=language, n_neighbors=n_neighbors, n_components=n_components, low_memory=low_memory)
         concat_df.append(df_neg_pos)
         resulting_df[0]["NEGATIVE-POSITIVE"] = neg_pos_results
         resulting_df[1]["NEGATIVE-POSITIVE"] = df_neg_pos
@@ -128,7 +139,7 @@ def review_topics(df, review_column = "text",emotion_column = "emotion", min_top
     # Classify reviews that could be either negative or neutral
     df_neg_net = df[df[emotion_column] == "NEGATIVE-NEUTRAL"]
     if df_neg_net.shape[0] > 0:
-        neg_net_results = topic_modelling(df_neg_net, review_column, min_topic_size=min_topic_size, language=language)
+        neg_net_results = topic_modelling(df_neg_net, review_column, min_topic_size=min_topic_size, language=language, n_neighbors=n_neighbors, n_components=n_components, low_memory=low_memory)
         concat_df.append(df_neg_net)
         resulting_df[0]["NEGATIVE-NEUTRAL"] = neg_net_results
         resulting_df[1]["NEGATIVE-NEUTRAL"] = df_neg_net
@@ -136,7 +147,7 @@ def review_topics(df, review_column = "text",emotion_column = "emotion", min_top
     # Classify reviews that could be either neutral or positive
     df_net_pos = df[df[emotion_column] == "NEUTRAL-POSITIVE"]
     if df_net_pos.shape[0] > 0:
-        net_pos_results = topic_modelling(df_net_pos, review_column, min_topic_size=min_topic_size, language=language)
+        net_pos_results = topic_modelling(df_net_pos, review_column, min_topic_size=min_topic_size, language=language, n_neighbors=n_neighbors, n_components=n_components, low_memory=low_memory)
         concat_df.append(df_net_pos)
         resulting_df[0]["NEUTRAL-POSITIVE"] = net_pos_results
         resulting_df[1]["NEUTRAL-POSITIVE"] = df_net_pos
@@ -144,7 +155,7 @@ def review_topics(df, review_column = "text",emotion_column = "emotion", min_top
     # In case there is a review that has been asigned all three emotions. Examin its topics.
     df_all = df[df[emotion_column] == "NEGATIVE-NEUTRAL-POSITIVE"]
     if df_all.shape[0] > 0:
-        all_results = topic_modelling(df_all, review_column, min_topic_size=min_topic_size, language=language)
+        all_results = topic_modelling(df_all, review_column, min_topic_size=min_topic_size, language=language, n_neighbors=n_neighbors, n_components=n_components, low_memory=low_memory)
         concat_df.append(df_all)
         resulting_df[0]["NEGATIVE-NEUTRAL-POSITIVE"] = all_results
         resulting_df[1]["NEGATIVE-NEUTRAL-POSITIVE"] = df_all
@@ -155,4 +166,4 @@ def review_topics(df, review_column = "text",emotion_column = "emotion", min_top
 
     resulting_df.append(df_complete)
 
-    return resulting_df
+    return [Global_Topics, resulting_df]

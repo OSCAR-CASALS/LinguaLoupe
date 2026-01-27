@@ -5,35 +5,41 @@ Script containing functions to load and use roberta pretrained models.
 from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification, CamembertTokenizer
 from pysentimiento import create_analyzer
 
-def load_classification_model(language = "english"):
+def load_classification_model(language = "english", model_type="social_media"):
     '''
     Load classification model Roberta
     '''
     
-    if language == "english":
-        model_name = "cardiffnlp/twitter-roberta-base-sentiment"
-        #model_name = "cardiffnlp/twitter-xlm-roberta-base-sentiment"
+    if model_type == "social_media":
+        # Models to use when analyzing social media text
+        if language == "english":
+            model_name = "cardiffnlp/twitter-roberta-base-sentiment"
+            #model_name = "cardiffnlp/twitter-xlm-roberta-base-sentiment"
 
-        tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=True)
-        model = AutoModelForSequenceClassification.from_pretrained(model_name)
+            tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=True)
+            model = AutoModelForSequenceClassification.from_pretrained(model_name)
 
-        classifier = pipeline("sentiment-analysis", model=model, tokenizer=tokenizer, max_length=512, truncation=True)
+            classifier = pipeline("sentiment-analysis", model=model, tokenizer=tokenizer, max_length=512, truncation=True)
 
-        return classifier
-    
-    elif language == "spanish":
-        analyzer = create_analyzer(task="sentiment", lang="es")
-        return analyzer
-    elif language == "italian":
-        analyzer = create_analyzer(task="sentiment", lang="it")
-        return analyzer
-    elif language == "portuguese":
-        analyzer = create_analyzer(task="sentiment", lang="pt")
-        return analyzer
+            return classifier
+        
+        elif language == "spanish":
+            analyzer = create_analyzer(task="sentiment", lang="es")
+            return analyzer
+        elif language == "italian":
+            analyzer = create_analyzer(task="sentiment", lang="it")
+            return analyzer
+        elif language == "portuguese":
+            analyzer = create_analyzer(task="sentiment", lang="pt")
+            return analyzer
+    else:
+        if language == "english":
+            classifier = pipeline("sentiment-analysis",model="siebert/sentiment-roberta-large-english")
+            return classifier
     #classifier = pipeline("sentiment-analysis", model=model_name, tokenizer = model_name)
 
 
-def classify_text_sentiment(text, classification_model):
+def classify_text_sentiment(text, classification_model, model_type="social_media"):
     '''
     Use Roberta to classify the sentiments of a text into POSITIVE, NEUTRAL, and NEGATIVE.
     '''
@@ -50,11 +56,16 @@ def classify_text_sentiment(text, classification_model):
     result = classification_model(text)[0]
 
     # Asigning the corresponding label to key "label" in the dictionary.
-
+    if model_type == "social_media":
+        return {
+            "label": labels[result["label"]],
+            "score": result["score"]
+        }
+    
     return {
-        "label": labels[result["label"]],
-        "score": result["score"]
-    }
+            "label": result["label"],
+            "score": result["score"]
+        }
 
 def classify_text_pysentimiento(text, pysentimiento_model, language="spanish"):
     '''

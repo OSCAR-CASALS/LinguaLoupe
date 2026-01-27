@@ -10,6 +10,9 @@ parser.add_argument("-ti", "--title", type=str, help="Title of the report,if not
 parser.add_argument("-t", "--text_data", type=str, help="csv, json, jsonl, tsv or xlsx file with text data.", required=True)
 parser.add_argument("-text_c", "--text_column", type=str, help="Column in TEXT_DATA which contains the texts to be analyzed",
                     required=True)
+
+parser.add_argument("-mo", "--model_type", type=str, help='Whether to use a model for sentiment classification trained on social media data (use "social_media" option) or a general model (use "general" option).', default="social_media")
+
 parser.add_argument("-ckt", "--Columns_to_Keep_Text", help="If there are any columns in TEXT_DATA you want to keep in Text.csv, specify them with this argument.",
                     required=False, action="append", default=[])
 parser.add_argument("-gct", "--group_to_count_text", help="Columns in TEXT_DATA to count the number of different appereances, the result will be found in Summary.csv in the output directory.",
@@ -35,10 +38,18 @@ parser.add_argument("-chunk_size", "--chunk_size", type=int, help="Chunk size in
 parser.add_argument("-min_topic_size", "--minimum_topic_size", type=int,
                     help="The minimum size of a topic. Increasing this value will lead to a lower number of clusters/topics and vice versa.",
                     default=10, required=False)
+
+parser.add_argument("-umap_n_neighbours_BERTopic", "--umap_n_neighbours_BERTopic", type=int, default=15, help="Number of approximate nearest neighbors used to construct the UMAP used in BERTopic, 15 by default.")
+parser.add_argument("-umap_n_components_BERTopic", "--umap_n_components_BERTopic", type=int, default=5, help="Number of components of the UMAP used in BERTopic, 5 by default.")
+parser.add_argument("-low_memory_BERTopic", "--umap_low_memory_BERTopic", type=str, default="True", help="True when datasets may consume a lot of memory. Using millions of documents can lead to memory issues and setting this value to True might alleviate some of the issues.")
+# n_neighbors=15, n_components=5, low_memory= True
+
 parser.add_argument("-lang", "--language", type=str, help="The main language used in your documents, it can be: 'english' (default), 'spanish', or 'portuguese'.", default="english", required=False)
 parser.add_argument("-umap_metric", "--umap_metric", type=str, default="cosine", help="Metric to be used when computing distances for umap, will be cosine by default. You can check all avalaible metrics here: https://umap-learn.readthedocs.io/en/latest/parameters.html")
 parser.add_argument("-umap_n_neighbours", "--umap_n_neighbours", type=int, default=15, help="Number of approximate nearest neighbors used to construct the UMAP, 15 by default.")
 parser.add_argument("-umap_min_dist", "--umap_min_dist", type=float, default=0.1, help="Minimum distance apart that points are allowed to be in the umap, 0.1 by default.")
+
+parser.add_argument("-clean_html", "--clean_html", type=str, default="True", help="Whether to remove html characters from text_column or not, True by default.")
 args = parser.parse_args()
 
 # Check if nltk stopwords are installed
@@ -69,6 +80,22 @@ u_col = args.umap_colour
 umap_metric_d = args.umap_metric
 neighbours_umap = args.umap_n_neighbours
 min_dist_umap = args.umap_min_dist
+m_type = args.model_type
+
+n_neighbours_BERTopic = args.umap_n_neighbours_BERTopic
+n_components_BERTopic = args.umap_n_components_BERTopic
+
+# Converting boolean values to the appropiate data type.
+l_memory = True
+
+if args.umap_low_memory_BERTopic == "False":
+    l_memory = False
+
+c_html = True
+
+if args.clean_html == "False":
+    c_html = False
+
 
 for c in u_col:
     if (c != "emotion") and (c not in cols_keep_text):
@@ -78,7 +105,9 @@ for c in u_col:
 
 run_sentiment_pipeline(text_data, title, text_col, cols_keep_text, count_text_group, mean_text_cols, sum_text_cols,
                        output_directory, csv_sep, min_rows_par, cancel_par, ch_size, m_topic_size, lang, umap_colour=u_col,
-                       umap_metric=umap_metric_d, umap_neighbours=neighbours_umap, umap_minimum_distance=min_dist_umap)
+                       umap_metric=umap_metric_d, umap_neighbours=neighbours_umap, umap_minimum_distance=min_dist_umap, model_type=m_type,
+                       n_neighbours_BERTopic=n_neighbours_BERTopic, umap_n_components_BERTopic=n_components_BERTopic, low_memory_BERTopic=l_memory,
+                       clean_html=c_html)
 
 absolute_path_to_html = os.path.abspath(output_directory)
 webbrowser.open(f"file://{absolute_path_to_html}/report.html")

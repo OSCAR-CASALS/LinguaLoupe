@@ -12,6 +12,7 @@ from nltk.corpus import stopwords
 import nltk
 import umap
 import umap.plot
+import re
 
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
@@ -29,7 +30,7 @@ def install_stopwords():
         nltk.download("stopwords")
 
 
-def generate_report(title, review_dataframe, topic_models, lang="english", path = "", umap_summ_color = ["emotion"],
+def generate_report(title, review_dataframe, topic_models, Global_topic_Model,lang="english", path = "", umap_summ_color = ["emotion"],
                     umap_met="cosine", neighbours_umap = 15, min_dist_umap = 0.1):
     '''
     Generate html report for an exploratory sentiment and topic analysis.
@@ -188,6 +189,11 @@ button:hover{
     onLoad_html = 'window.onload = function(){document.getElementById(previous_display_umap).style.display = "block";}'
     # HTML template
 
+    list_index_emotions = ""
+
+    for k in topic_models.keys():
+        list_index_emotions += f'<li><a href="#Semtinment{k}">{k} Texts Analysis</a></li>'
+
     html_template = f'''
 <!DOCTYPE html>
 <html lang="en">
@@ -220,9 +226,7 @@ button:hover{
       <hr>
       <label style="font-weight: bold;">Go to:</label>
       <li><a href="#Summary">Summary</a></li>
-      <li><a href="#SemtinmentPOSITIVE">Positive Texts Analysis</a></li>
-      <li><a href="#SemtinmentNEUTRAL">Neutral Texts Analysis</a></li>
-      <li><a href="#SemtinmentNEGATIVE">Negative Texts Analysis</a></li>
+      {list_index_emotions}
     </ul>
     <div class="navBarBack">
     </div>
@@ -242,16 +246,97 @@ button:hover{
         "NEUTRAL-POSITIVE": "#8B9A8B"
     }
 
+    def generate_overview():
+        # Create a Word Cloud of all texts associated with that emotion, regex removes urls
+        all_texts_single_string = " ".join(re.sub(r"http\S+|www\.\S+", "", review) for review in review_dataframe["text"])
+        stopwords_word_cloud = stopwords.words(lang)
+        wordcloud = WordCloud(stopwords=stopwords_word_cloud, background_color="white").generate(all_texts_single_string)
+        
+        fig, ax = plt.subplots(figsize = (15, 8))
+        ax.imshow(wordcloud, interpolation='bilinear')
+        ax.axis("off")
+
+        tmpfile = BytesIO()
+        fig.savefig(tmpfile, format='png')
+        html_str_wordcloud = base64.b64encode(tmpfile.getvalue()).decode('utf-8')
+
+        # UMAP
+        if Global_topic_Model[1].shape[0] < 2:
+            return f"<div><p>Could not find global topics.</p></div>"
+        
+        model = Global_topic_Model[0]
+
+        if Global_topic_Model[1].shape[0] < 2:
+            umap_div = '<p style="color: red;">Not enougth topics to generate UMAP.</p>'
+            hierarchical_div = '<p style="color: red;">Not enougth topics to perform hierarchical clustering.</p>'
+        else:
+            try:
+                umap_em = model.visualize_topics()
+                umap_div = pio.to_html(umap_em, full_html=False, include_plotlyjs="cdn")
+            except Exception as e:
+                umap_div = f'<p style="color: red;">Umap could not be generated: {e}.</p>'
+            hierarchical_em = model.visualize_hierarchy()
+            hierarchical_div = pio.to_html(hierarchical_em, full_html=False, include_plotlyjs="cdn")
+        # Heatmap
+        heatmap_em = model.visualize_heatmap()
+        heatmap_div = pio.to_html(heatmap_em, full_html=False, include_plotlyjs="cdn")
+        # Barchart of words
+        barplot_em = model.visualize_barchart(top_n_topics=len(model.get_topics()))
+        barplot_em.update_layout(title={
+            'text': '<b>Topic Word Scores</b>',
+            'font': {'size': 24, 'family': 'Arial', 'color': 'black'},  # Size and font
+            'x': 0.5,  # Centered title
+        })
+        #barplot_em.update_traces(marker_color=emotion_colours[em])
+        barplot_div = pio.to_html(barplot_em, full_html=False, include_plotlyjs="cdn")
+
+        # topic frequencies
+        topics_freqs_dataframe = Global_topic_Model[1]
+        topics_freqs_dataframe["Topic"] = topics_freqs_dataframe["Topic"].astype(str)
+        topic_counts_barplot = px.bar(topics_freqs_dataframe, x="Topic", y="Count", title="Topic Counts")
+        topic_counts_barplot.update_layout(title={
+            'text': '<b>Topic Counts</b>',
+            'font': {'size': 24, 'family': 'Arial', 'color': 'black'},  # Size and font
+            'x': 0.5,  # Centered title
+        }, showlegend=False)
+        #topic_counts_barplot.update_traces(marker_color=emotion_colours[em])
+        barplot_topics_freq_div = pio.to_html(topic_counts_barplot, full_html=False, include_plotlyjs="cdn")  
+
+        res = f'''
+        <h3 id="Wordcloud">Word cloud</h3>
+        <p>Most frequent words across all reviews</p>
+        <img src='data:image/png;base64,{html_str_wordcloud}'>
+        <h4 id="TopicFreqs">Global Topic Counts</h4>
+        <p>Barplot displaying how many times a topic appears.</p>
+        {barplot_topics_freq_div}
+        <h4 id="Intertopic">Intertopic distance map</h4>
+        <p>A Umap visualization generated in a way very similar to <a href="https://github.com/cpsievert/LDAvis">LDAvis</a>.</p>
+        {umap_div}
+        <h4 id="Hclust">Hierarchcial clustering</h4>
+        <p>A graph displaying the potential hierarchy of topics.</p>
+        {hierarchical_div}
+        <h4 id="WordScore">Topic Word Score</h4>
+        <p>c-TF-IDF scores of each topic, you can visualize the most meaningfull words for each of the topics.</p>
+        <button id="but_id_topics_show" onclick="HideButton(this.value, this.id)" value="topics_barplots_tf">Show Topics</button>
+        <div id="topics_barplots_tf" style="display: none;">
+            {barplot_div}
+        </div>
+        <h4 id="Sim">Similarity Matrix</h4>
+        <p>A heatmap showing how similar the topics are between them.</p>
+        {heatmap_div}
+        '''
+        return res
+
     def generate_html_for_emotion(em):
         # Dataframe emotions
         em_df = review_dataframe[review_dataframe["emotion"] == em]
 
-        # Create a Word c¡Cloud of all texts associated with that emotion
-        all_texts_single_string = " ".join(review for review in em_df["text"])
+        # Create a Word Cloud of all texts associated with that emotion
+        all_texts_single_string = " ".join(re.sub(r"http\S+|www\.\S+", "", review) for review in em_df["text"])
         stopwords_word_cloud = stopwords.words(lang)
         wordcloud = WordCloud(stopwords=stopwords_word_cloud, background_color="white").generate(all_texts_single_string)
         
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(figsize = (15, 8))
         ax.imshow(wordcloud, interpolation='bilinear')
         ax.axis("off")
 
@@ -308,6 +393,37 @@ button:hover{
         })
         barplot_em.update_traces(marker_color=emotion_colours[em])
         barplot_div = pio.to_html(barplot_em, full_html=False, include_plotlyjs="cdn")
+        # Global topic frequencies
+        
+        # global_probability_topic
+        
+        global_topics_freqs_dataframe = (
+            em_df[em_df["global_topic"] > 0]["global_topic"].value_counts().reset_index()
+        )
+
+        global_topics_freqs_dataframe.columns = ["global_topic", "count"]
+
+        global_topics_freqs_dataframe["Global Topic"] = global_topics_freqs_dataframe["global_topic"].astype(str)
+
+        global_topic_counts_barplot = px.bar(
+            global_topics_freqs_dataframe,
+            x="Global Topic",
+            y="count",
+            title="Global Topic Counts"
+        )
+
+        #global_topics_freqs_dataframe["Topic"] = topics_freqs_dataframe["Topic"].astype(str)
+        #global_topic_counts_barplot = px.bar(global_topics_freqs_dataframe, x="global_topics_freqs_dataframe", y="count", title="Topic Counts")
+        global_topic_counts_barplot.update_layout(title={
+            'text': '<b>Global Topic Counts</b>',
+            'font': {'size': 24, 'family': 'Arial', 'color': 'black'},  # Size and font
+            'x': 0.5,  # Centered title
+        }, showlegend=False)
+
+        global_topic_counts_barplot.update_traces(marker_color=emotion_colours[em])
+        global_barplot_topics_freq_div = pio.to_html(global_topic_counts_barplot, full_html=False, include_plotlyjs="cdn")
+        
+        
         # topic frequencies
         topics_freqs_dataframe = topic_models[em][1]
         topics_freqs_dataframe["Topic"] = topics_freqs_dataframe["Topic"].astype(str)
@@ -380,8 +496,11 @@ button:hover{
             <img src='data:image/png;base64,{html_str_wordcloud}'>
             <h4>Top 10 most frequent Trigrams</h4>
             {bigram_plot_div}
-            <h4 id="TopicFreqs{em}">Topic Counts</h4>
-            <p>Barplot displaying how many times a topic appears.</p>
+            <h4 id="TopicFreqsGlobal{em}">Global Topic Counts {em}</h4>
+            <p>Barplot displaying how many times a global topic appears for this emmotion.</p>
+            {global_barplot_topics_freq_div}
+            <h4 id="TopicFreqs{em}">Topic Counts {em}</h4>
+            <p>Barplot displaying how many times a topic appears for this emotion in a topic classification of only {em} texts.</p>
             {barplot_topics_freq_div}
             <h4 id="Intertopic{em}">Intertopic distance map</h4>
             <p>A Umap visualization generated in a way very similar to <a href="https://github.com/cpsievert/LDAvis">LDAvis</a>.</p>
@@ -496,6 +615,8 @@ button:hover{
         <p>A UMAP to see how similar the text of each emotion are.</p>
         {select_umaps_dropdown}
         {umaps_Divs}
+        <br><br><br>
+        {generate_overview()}
 '''
 
     # Adding umaps to general section of html and closing the div
