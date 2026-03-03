@@ -26,16 +26,14 @@ def load_classification_model(language = "english", model_type="social_media"):
         elif language == "spanish":
             analyzer = create_analyzer(task="sentiment", lang="es")
             return analyzer
-        elif language == "italian":
-            analyzer = create_analyzer(task="sentiment", lang="it")
-            return analyzer
-        elif language == "portuguese":
-            analyzer = create_analyzer(task="sentiment", lang="pt")
-            return analyzer
+        
     else:
         if language == "english":
             classifier = pipeline("sentiment-analysis",model="siebert/sentiment-roberta-large-english")
             return classifier
+    
+    classifier = pipeline('sentiment-analysis', model="nlptown/bert-base-multilingual-uncased-sentiment")
+    return classifier
     #classifier = pipeline("sentiment-analysis", model=model_name, tokenizer = model_name)
 
 
@@ -67,56 +65,38 @@ def classify_text_sentiment(text, classification_model, model_type="social_media
             "score": result["score"]
         }
 
-def classify_text_pysentimiento(text, pysentimiento_model, language="spanish"):
+def classify_text_no_english(text, model, language="spanish", model_type="social_media"):
     '''
-    Perform sentiment classification using a Pysentimiento instances
+    Perform sentiment classification using a Pysentimiento or bert-base-multilingual-uncased-sentiment model.
     '''
 
-    sentiment = pysentimiento_model.predict(text)
-
-    if language == "italian":
-
+    if language == "spanish" and model_type == "social_media":
+        sentiment = model.predict(text)
+            
         labels = {
-            "neg": "NEGATIVE",
-            "pos": "POSITIVE"
+            "NEG": "NEGATIVE",
+            "NEU": "NEUTRAL",
+            "POS": "POSITIVE"
         }
 
-        sent = sentiment.output
+        return {
+            "label" : labels[sentiment.output],
+            "score": sentiment.probas[sentiment.output]
+        }
+    
+    sentiment = model(text)[0]
 
-        if len(sent) == 0:
-            sent = "NEUTRAL"
+    stars = int(sentiment['label'].split(' ')[0])
+    label = ""
 
-            sc = 1 - sum(sentiment.probas.values())
-            
-            return {
-                "label" : sent,
-                "score": sc
-            }
-        
-        elif len(sent) > 1:
-            sent = "MIXED"
-
-            sc = sum(sentiment.probas.values())/2
-
-            return {
-                "label" : sent,
-                "score": sc
-            }
-        else:
-            sent = labels[sent[0]]
-
-            return {
-                "label" : sent,
-                "score": sentiment.probas[sentiment.output[0]]
-            }
-        
-    labels = {
-        "NEG": "NEGATIVE",
-        "NEU": "NEUTRAL",
-        "POS": "POSITIVE"
-    }
+    if stars > 3:
+        label = "POSITIVE"
+    elif stars < 3:
+        label = "NEGATIVE"
+    else:
+        label = "NEUTRAL"
 
     return {
-        "label" : labels[sentiment.output],
-        "score": sentiment.probas[sentiment.output]
+        "label": label,
+        "score": sentiment["score"]
     }

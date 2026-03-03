@@ -28,14 +28,14 @@ pip install -r requirements.txt
 
 ## Usage
 
-To run the pipeline, it is just needed to specify the following arguments:
+To run the pipeline, it is just needed to specify the following arguments and run LinguaLoupe.py:
 
 |Abreviation            |Long argument              |Name                     |Description|
 |-----------------------|---------------------------|-------------------------|---------|
 |-t                     |--text_data                |TEXT_DATA                |csv, json, jsonl, tsv or xlsx file with text data.|
 |-text_c                |--text_column              |TEXT_COLUMN              |Column in TEXT_DATA which contains the texts to be analyzed|
 |-o                     |--output_directory         |OUTPUT_DIRECTORY         |Output directory, it will be the current working directory by default.|
-|-mo                    |--model_type               |MODEL_TYPE               |Whether to use a model for sentiment classification trained on social media data (use "social_media" option) or a general model (use "general" option), "social_media" is used by default.|
+|-mo                    |--model_type               |MODEL_TYPE               |Whether to use a model for sentiment classification trained on social media data (use "social_media" option) or a review model (use "review" option), "social_media" is used by default.|
 
 Additionally, you can set the following parameters so the report and csv files generated fit the data better.
 
@@ -119,7 +119,13 @@ This repository is divided as following:
 
 ## Tools used for sentiment and Topic classification.
 
-- For sentyment classification pretrained models _cardiffnlp/twitter-roberta-base-sentiment_ and _pysentimiento_ were used.
+- For sentyment classification, depending on the language and the model type the following pretrained models are used: 
+    + **social_media**:
+        + English: cardiffnlp/twitter-roberta-base-sentiment_
+        + Spanish: _pysentimiento_.
+    + **review**:
+        + English: _siebert/sentiment-roberta-large-english_
+        + Spanish: _nlptown/bert-base-multilingual-uncased-sentiment_
 - For Topic modelling BERTopic was used.
 
 ## Planned updates
@@ -128,7 +134,6 @@ The following updates are planned for end of 2027:
 
 - Desktop app that will allow to use the pipeline outside the Command Line.
 - Support for other languages aside from english.
-- Include more models for sentyment classification aside from _cardiffnlp/twitter-roberta-base-sentiment_ and give the user the ability to choose the one that better fits it's data.
 
 ## Citations
 
@@ -137,5 +142,7 @@ The following updates are planned for end of 2027:
 - Grootendorst, M. (2022). BERTopic: Neural topic modeling with a class-based TF-IDF procedure. arXiv preprint arXiv:2203.05794.
 
 - Pérez, J. M., Rajngewerc, M., Giudici, J. C., Furman, D. A., Luque, F., Alemany, L. A., & Martínez, M. V. (2023). pysentimiento: A Python Toolkit for Opinion Mining and Social NLP tasks. arXiv [Cs.CL]. Retrieved from http://arxiv.org/abs/2106.09462
+
+- NLP Town. (2023). bert-base-multilingual-uncased-sentiment (Revision edd66ab). doi:10.57967/hf/1515
 
 

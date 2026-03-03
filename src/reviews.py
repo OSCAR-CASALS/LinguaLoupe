@@ -7,7 +7,7 @@ from pathlib import Path
 from transformers import AutoTokenizer
 import statistics
 import pandas as pd
-from src.sentiment import load_classification_model, classify_text_sentiment, classify_text_pysentimiento
+from src.sentiment import load_classification_model, classify_text_sentiment, classify_text_no_english
 import warnings
 
 from bs4 import BeautifulSoup
@@ -85,7 +85,7 @@ def process_reviews(data_path, text_column, csv_sep = ",",
         if language == "english":
             return classify_text_sentiment(text_to_classify, model, model_type=m_type)
         
-        return classify_text_pysentimiento(text_to_classify, model, language)
+        return classify_text_no_english(text_to_classify, model, language, model_type=m_type)
 
     def classify_sentiments(text):
         '''
