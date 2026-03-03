@@ -35,7 +35,7 @@ To run the pipeline, it is just needed to specify the following arguments and ru
 |-t                     |--text_data                |TEXT_DATA                |csv, json, jsonl, tsv or xlsx file with text data.|
 |-text_c                |--text_column              |TEXT_COLUMN              |Column in TEXT_DATA which contains the texts to be analyzed|
 |-o                     |--output_directory         |OUTPUT_DIRECTORY         |Output directory, it will be the current working directory by default.|
-|-mo                    |--model_type               |MODEL_TYPE               |Whether to use a model for sentiment classification trained on social media data (use "social_media" option) or a review model (use "review" option), "social_media" is used by default.|
+|-mo                    |--model_type               |MODEL_TYPE               |Whether to use a model for sentiment classification trained on social media data (use "social_media" option) or one fine-tuned for reviews (use "review" option), "social_media" is used by default.|
 
 Additionally, you can set the following parameters so the report and csv files generated fit the data better.
 
