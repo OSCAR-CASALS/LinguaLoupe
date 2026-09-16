@@ -156,6 +156,7 @@ The following updates are planned for end of 2027:
 - Add more customization to the report.
 - Create a portable binary and executable (.exe) of LinguaLoupe so it can be used without the need of python.
 - Create examples of how this tool can be used with public datasets and how it can be used as a key piece for workflows focused on text analysis.
+- Add another CSV output containing GROUP_TO_COUNT_TEXT with metrics MEAN_TEXT and SUM_TEXT computed per group. 
 
 ## Citations
 
