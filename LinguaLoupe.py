@@ -69,10 +69,14 @@ cols_keep_text = args.Columns_to_Keep_Text
 r_classification = args.remove_classification
 count_text_group = args.group_to_count_text
 gr_col = args.Category_Column
+
 if ("emotion" not in count_text_group) and ((r_classification == True) or (gr_col == "emotion")):
     count_text_group.append("emotion")
 elif ((r_classification == False) or (gr_col != "emotion")):
     count_text_group.remove("emotion")
+
+if (gr_col != "emotion") and (gr_col not in cols_keep_text):
+    cols_keep_text.append(gr_col)
 
 mean_text_cols = args.mean_text
 sum_text_cols = args.sum_text

@@ -80,7 +80,16 @@ def topic_modelling(df, review_columns, min_topic_size=10, language="english", n
         reduced_topic_size = int(min_topic_size/2)
         if reduced_topic_size >= 2:
             warnings.warn(f"No topics identified for the dataframe, triying again reducing by half the min_topic_size({reduced_topic_size})")
-            return topic_modelling(df, review_columns, reduced_topic_size, language, n_neighbors, n_components, low_memory)
+            return topic_modelling(
+                df,
+                review_columns,
+                reduced_topic_size,
+                language,
+                n_neighbors,
+                n_components,
+                low_memory,
+                embedding_device= embedding_device,
+                embedding_model_name = embedding_model_name)
         warnings.warn("Could not find topics for the dataframe")
     # Getting most important words for each topic
     main_words = []
