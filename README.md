@@ -151,7 +151,7 @@ The following updates are planned for end of 2027:
 - Improve documentation and create new one for the Desktop app.
 - Add more customization to the report.
 - Create a portable binary and executable (.exe) of LinguaLoupe so it can be used without the need of python.
-- Create examples of how this tool can be used with public datasets and how it can be used as a key piece for workflows focused on text analysis.
+- Create examples of how this tool can be used with public datasets and how it can be an important piece in workflows focused on text analysis.
 
 ## Citations
 
