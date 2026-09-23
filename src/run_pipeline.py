@@ -36,6 +36,7 @@ def run_sentiment_pipeline(text_data, title, text_col, cols_keep_text,
 
     if sentiment_classification:
         # Count ammount of text for each group.
+        #print(reviews.columns.tolist())
         for gr in reviews[group_column].unique():
             print(f"Ammount of {gr} Texts: {reviews[reviews[group_column] == gr].shape[0]}")
     
@@ -62,7 +63,7 @@ def run_sentiment_pipeline(text_data, title, text_col, cols_keep_text,
     # Summareize the information
     print("Creating csv files...")
     summary_data = summerize_information(review_dataframe=topics[-1],
-                                    title=title, groups_to_count_reviews=count_text_group,
+                                    cols_to_group_by=count_text_group,
                                     columns_to_mean_review=mean_text_cols,
                                     columns_to_sum_reviews=sum_text_cols
                                     )

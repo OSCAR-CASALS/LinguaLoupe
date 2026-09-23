@@ -4,37 +4,48 @@ File containing the function in charge of summarizing information.
 
 import pandas as pd
 
-def summerize_information(review_dataframe, title, groups_to_count_reviews=[], columns_to_mean_review=[], columns_to_sum_reviews = []):
+def summerize_information(review_dataframe, cols_to_group_by=[], columns_to_mean_review=[], columns_to_sum_reviews = []):
     '''
-    Summerize text dataframe information into a dataframe of 1 row
+    Summerize text dataframe information.
     '''
-    # Creating summary datframe
-    df = pd.DataFrame(index=[0])
 
-    # Adding title and description if present
-    df["Title"] = title
+    # if no lists, just return an empty dataframe.
+    df = pd.DataFrame()
+    if (len(cols_to_group_by) == 0) and (len(columns_to_mean_review) == 0) and (len(columns_to_sum_reviews) == 0):
+        return df
+
+    # Creating dictionary with columns to perform count, mean, and sum.
+    agg_dictionary = {}
+
+    copy_df = review_dataframe.copy()
     
-    # Counting groups and adding them to the summary dataframe
-    def add_dataframe(x, df_counts, dataframe_name):
-        #print(x)
-        df[f"ammount_of_{x}"] = df_counts[df_counts["Group"] == x]["Count"].values[0]
-        
-    for i in groups_to_count_reviews:
-        counts_column = review_dataframe[i].value_counts().reset_index()
-        counts_column.columns = ["Group", "Count"]
-        counts_column["Group"].map(lambda y : add_dataframe(y, df_counts=counts_column, dataframe_name = "reviews"))
+    for col in columns_to_mean_review:
+        new_c = f'{col} mean'
+        copy_df[new_c] = review_dataframe[col]
+        agg_dictionary[new_c] = 'mean'
 
-    # Averaging the columns specified to do so
-        
-    for i in columns_to_mean_review:
-        df[f"average_{i}"] = review_dataframe[i].mean()
+    for col in columns_to_sum_reviews:
+        new_c = f'{col} sum'
+        copy_df[new_c] = review_dataframe[col]
+        agg_dictionary[new_c] = 'sum'
 
-    # Columns to sum
+    # Performing group by
+    if len(cols_to_group_by) > 0:
+        grouped = copy_df.groupby(cols_to_group_by)
 
-    for i in columns_to_sum_reviews:
-        df[f"count_{i}"] = review_dataframe[i].sum()
+        if len(agg_dictionary.keys()) > 0:
+            df = grouped.agg(agg_dictionary)
+            df['Number of texts'] = grouped.size()
+            df = df.reset_index()
+        else:
+            df = grouped.size().reset_index(name='Number of texts')
 
-    # Review number is the number of rows in the review dataframe
-    df["Number of texts"] = review_dataframe.shape[0]
+        return df
+    
+    # If no group by is needed, just apply the transformations.
+    
+    if len(agg_dictionary.keys()) > 0:
+        df = copy_df.agg(agg_dictionary).to_frame().T
+    df['Number of texts'] = review_dataframe.shape[0]
 
     return df

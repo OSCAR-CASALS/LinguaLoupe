@@ -62,9 +62,26 @@ def process_reviews(data_path, text_column, csv_sep = ",",
     # Removing texts that do not contain at least one alphabetic character, or are NA.
     data = data[data[text_column].str.contains(r"[A-Za-z]", na=False)]
 
+    # If dataset already contains a column called emotion, changed it to emotion_original so it does not interfere with the pipeline (to find a better fix later).
+    
+    if "emotion" in data.columns.tolist():
+        data = data.rename(columns = {"emotion": "emotion_original"})
+        if "emotion" in columns_to_keep:
+            columns_to_keep.append("emotion_original")
+    if "emotion_score" in data.columns.tolist():
+        data = data.rename(columns = {"emotion_score": "emotion_score_original"})
+        if "emotion_score" in columns_to_keep:
+            columns_to_keep.append("emotion_score_original")
+
     # If the perform_sentiment_classification is true, perform sentiment classification, otherwise just rename text column
     columns_selected = ["text"]
     if perform_sentiment_classification == True:
+        # Removing emotion column in columns to keep just in case so we don't have duplicate columns
+        if "emotion" in columns_to_keep:
+            columns_to_keep.remove("emotion")
+        if "emotion_score" in columns_to_keep:
+            columns_to_keep.remove("emotion_score")
+            
         # loading model
         model = load_classification_model(language=language, model_type=m_type, device=sent_device)
 
@@ -165,8 +182,7 @@ def process_reviews(data_path, text_column, csv_sep = ",",
     # Renaming text column so it its name can be used in other functions of the pipeline
     data = data.rename(columns = {text_column: "text"})
 
-    # Selecting only columns of interest
-    
+    # Selecting only columns of interest without duplicates
     data = data[columns_selected + columns_to_keep]
 
     return data

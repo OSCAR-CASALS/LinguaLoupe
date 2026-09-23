@@ -207,18 +207,22 @@ button:hover{
 }
 '''
 
-    #Function to display the right umap
-    first_umap_col = f'"umap_{umap_summ_color[0]}_id"'
-    display_umap_function = '''{
-    let prevEl = document.getElementById(previous_display_umap);
-    prevEl.style.display = "none";
+    #Function to display the right umap, if there is no umap to show then we do not need it.
+    first_umap_col = '0'
+    display_umap_function = '{}'
+    if len(umap_summ_color) > 0:
+        first_umap_col = f'"umap_{umap_summ_color[0]}_id"'
+        display_umap_function = '''{
+        let prevEl = document.getElementById(previous_display_umap);
+        prevEl.style.display = "none";
 
-    let el = document.getElementById(id_element);
-    el.style.display = "block";
+        let el = document.getElementById(id_element);
+        el.style.display = "block";
 
-    previous_display_umap = id_element;
-}
-'''
+        previous_display_umap = id_element;
+    }
+    '''
+        
     # Function to show first umap once html is loaded
     onLoad_html = 'window.onload = function(){document.getElementById(previous_display_umap).style.display = "block";}'
     # HTML template
@@ -302,7 +306,7 @@ button:hover{
                 umap_div = pio.to_html(umap_em, full_html=False, include_plotlyjs="cdn")
             except Exception as e:
                 umap_div = f'<p style="color: red;">Umap could not be generated: {e}.</p>'
-            hierarchical_em = model.visualize_hierarchy(use_ctfidf = False)
+            hierarchical_em = model.visualize_hierarchy()
             hierarchical_div = pio.to_html(hierarchical_em, full_html=False, include_plotlyjs="cdn")
         # Heatmap
         heatmap_em = model.visualize_heatmap(use_ctfidf = False)
@@ -339,9 +343,11 @@ button:hover{
         {barplot_topics_freq_div}
         <h4 id="Intertopic">Intertopic distance map</h4>
         <p>A Umap visualization generated in a way very similar to <a href="https://github.com/cpsievert/LDAvis">LDAvis</a>.</p>
+        <p>The clusters are based on the embeddings from the embedding model, or in other words, they are determined by the semantic meaning of the words in each topic rather than what is explicitly written in them.</p>
         {umap_div}
         <h4 id="Hclust">Hierarchcial clustering</h4>
         <p>A graph displaying the potential hierarchy of topics.</p>
+        <p>It uses c-TF-IDF representations for computing the similarities between topics, or in other words, the similarity between topics is determined by the words explicitly written in them.</p>
         {hierarchical_div}
         <h4 id="WordScore">Topic Word Score</h4>
         <p>c-TF-IDF scores of each topic, you can visualize the most meaningfull words for each of the topics.</p>
@@ -407,7 +413,7 @@ button:hover{
                 umap_div = pio.to_html(umap_em, full_html=False, include_plotlyjs="cdn")
             except Exception as e:
                 umap_div = f'<p style="color: red;">Umap could not be generated: {e}.</p>'
-            hierarchical_em = model.visualize_hierarchy(use_ctfidf = False)
+            hierarchical_em = model.visualize_hierarchy()
             hierarchical_div = pio.to_html(hierarchical_em, full_html=False, include_plotlyjs="cdn")
         # Heatmap
         heatmap_em = model.visualize_heatmap(use_ctfidf = False)
@@ -530,9 +536,11 @@ button:hover{
             {barplot_topics_freq_div}
             <h4 id="Intertopic{em}">Intertopic distance map</h4>
             <p>A Umap visualization generated in a way very similar to <a href="https://github.com/cpsievert/LDAvis">LDAvis</a>.</p>
+            <p>The clusters are based on the embeddings from the embedding model, or in other words, they are determined by the semantic meaning of the words in each topic rather than what is explicitly written in them.</p>
             {umap_div}
             <h4 id="Hclust{em}">Hierarchcial clustering</h4>
             <p>A graph displaying the potential hierarchy of topics.</p>
+            <p>It uses c-TF-IDF representations for computing the distance between topics, or in other words, the similarity between topics is determined by the words explicitly written in them.</p>
             {hierarchical_div}
             <h4 id="WordScore{em}">Topic Word Score</h4>
             <p>c-TF-IDF scores of each topic, you can visualize the most meaningfull words for each of the topics.</p>
