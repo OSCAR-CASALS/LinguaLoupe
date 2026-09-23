@@ -28,6 +28,29 @@ file requirements.txt as following:
 pip install -r requirements.txt
 ```
 
+### Dependencies
+
+For runing LinguaLoupe, Python version 3.14.6 alongside the following libraries are required:
+
+| Library                        | Version | Description                                          |
+|--------------------------------|---------|------------------------------------------------------|
+|Argparse                        |1.1      |A module to easily write user-friendly command-line interfaces |
+|PyTorch                         |2.11.0   |A framework to simplify the process of building, training, and deploying deep models|
+|Transformers                    |5.14.1   |A toolkit to access Hugging Face's pre-trained models.|
+|Pysentimiento                   |0.7.3    |A Transformer-based library for SocialNLP tasks.|
+|Pandas                          |3.0.3    |Package that provides fast, flexible, and expressive data structures designed to make working with "relational" or "labeled" data both easy and intuitive.|
+|BeautifoulSoup                  |4.15.0   |Library for pulling data out of HTML and XML files.|
+|BERTopic                        |0.17.4   |A library to perform topic modeling and clasification with state-of-the-art transformer models.|
+|Sentence_transformers           |5.6.0    |A framework to compute embeddings for accessing, using, and training state-of-the-art embedding and reranker models.|
+|Umap-learn                      |0.5.11   |A library to create UMAPs in Python.|
+|Plotly                          |6.7.0    |Interactive, open-source, and browser-based graphing library for Python.|
+|Scikit-learn                    |1.9.0    |Python module for machine learning built on top of SciPy.|
+|NLTK (Natural Language Toolkit) |3.10.0   |A python toolkit to build programs that work with human language data.|
+|Wordcloud                       |1.9.6    |A word cloud generator in Python.|
+|Matplotlib                      |3.11.0   |A comprehensive library for creating static, animated, and interactive visualizations in Python.|
+||||
+
+
 ## Usage
 
 To run the pipeline, it is just needed to specify the following arguments and run LinguaLoupe.py:
