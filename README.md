@@ -2,7 +2,7 @@
 
 ## Description
 
-A data pipeline for sentiment analysis and topic classification, enabling to derive meaningful insights from large collections of textual data, such as:
+A data pipeline for sentiment analysis and topic classification, enabling to derive meaningful insights from collections of textual data, such as:
 reviews, online discussions, tweets, posts...
 
 Specifically, it first divides all texts into topics and emotions allowing for an overview of the data and, afterwords, it performs topic classification on each sentiment or category defined by the user separately so a more in-depth analysis can be perfomred.
