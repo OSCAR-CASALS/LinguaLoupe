@@ -149,7 +149,7 @@ LinguaLoupe is currently on version v.0.4.0-alpha.
 
 ## Whats new compared to the previous version?
 
-- The _Summary.csv_ generated in the output has been overhauled, now the gbc option has been added so users can group by any category they want and count the number of appereances of each group in the dataset, and compute the mean or sum of any numerical tvalue they want in the dataset.
+- The _Summary.csv_ generated in the output has been overhauled, now the gbc option has been added so users can group by any category they want and count the number of appereances of each group in the dataset, as well as compute the mean or sum of any numerical column they want in the dataset.
 
 - Fixed a major bug where there could not be a column already named _emotion_ in TEXT_DATA.
 
