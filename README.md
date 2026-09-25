@@ -48,7 +48,6 @@ For runing LinguaLoupe, Python version 3.14.6 alongside the following libraries 
 |NLTK (Natural Language Toolkit) |3.10.0   |A python toolkit to build programs that work with human language data.|
 |Wordcloud                       |1.9.6    |A word cloud generator in Python.|
 |Matplotlib                      |3.11.0   |A comprehensive library for creating static, animated, and interactive visualizations in Python.|
-||||
 
 
 ## Usage
