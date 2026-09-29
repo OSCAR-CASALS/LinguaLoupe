@@ -13,10 +13,11 @@ import re
 def run_sentiment_pipeline(text_data, title, text_col, cols_keep_text,
                            count_text_group, mean_text_cols, sum_text_cols,
                            output_directory, csv_sep, ch_size, m_topic_size, lang, umap_colour = ["emotion"],
-                           umap_metric="cosine", umap_neighbours = 15, umap_minimum_distance = 0.1, model_type = "social_media",
+                           umap_metric="cosine", umap_neighbours = 15, umap_minimum_distance = 0.1, model_type = "cardiffnlp/twitter-roberta-base-sentiment",
                            n_neighbours_BERTopic = 15, umap_n_components_BERTopic = 5, low_memory_BERTopic = True,
                            clean_html = True, include_tables = False, sentiment_classification = True, embedding_model_name = "all-MiniLM-L6-v2",
-                           embedding_device = None, sentiment_device = -1,group_column = "emotion", m_topic_size_global = 10):
+                           embedding_device = None, sentiment_device = -1,group_column = "emotion", m_topic_size_global = 10,
+                           n_neighbours_BERTopic_global = 15, umap_n_components_BERTopic_global = 5, emotion_labels = None):
     '''
     Run LinguaLoupe pipeline
     '''
@@ -28,11 +29,13 @@ def run_sentiment_pipeline(text_data, title, text_col, cols_keep_text,
         sent_class = False
     # Classify sentiments into negative, positive and neutral.
     print("Classifiying text into emotions...")
-    reviews = process_reviews(text_data,
-                            text_col, columns_to_keep=cols_keep_text, csv_sep=csv_sep,
+    reviews = process_reviews(data_path = text_data,
+                            text_column = text_col,
+                            columns_to_keep=cols_keep_text,
+                            csv_sep=csv_sep,
                             divide_in_chunks=ch_size,
                             convert_to_string=False, language=lang, m_type=model_type, clean_html_text=clean_html,
-                            perform_sentiment_classification=sent_class, sent_device=sentiment_device)
+                            perform_sentiment_classification=sent_class, sent_device=sentiment_device, labels=emotion_labels)
 
     if sentiment_classification:
         # Count ammount of text for each group.
@@ -43,7 +46,7 @@ def run_sentiment_pipeline(text_data, title, text_col, cols_keep_text,
     # Perform topic modelling
     print("Dividing text into topics...")
     topics_step = review_topics(
-        reviews,
+        df = reviews,
         min_topic_size=m_topic_size,
         language=lang,
         n_neighbors=n_neighbours_BERTopic,
@@ -53,7 +56,9 @@ def run_sentiment_pipeline(text_data, title, text_col, cols_keep_text,
         embedding_model_name = embedding_model_name,
         embedding_device = embedding_device,
         emotion_column=group_column,
-        min_topic_size_global=m_topic_size_global
+        min_topic_size_global=m_topic_size_global,
+        n_neighbors_global=n_neighbours_BERTopic_global,
+        n_components_global=umap_n_components_BERTopic_global
     )
     
     topics = topics_step[1]

@@ -118,7 +118,7 @@ def topic_modelling(df, review_columns, min_topic_size=10, language="english", n
 
 def review_topics(df, review_column = "text",emotion_column = "emotion", min_topic_size=10, min_topic_size_global = 10,
                   language="english", n_neighbors=15, n_components=5, low_memory= True, perform_sentiment_classification = True,
-                  embedding_model_name = "all-MiniLM-L6-v2", embedding_device = None):
+                  embedding_model_name = "all-MiniLM-L6-v2", embedding_device = None, n_neighbors_global = 15, n_components_global = 5):
     '''
     Divide positive, neutral and negative texts into topics.
     '''
@@ -130,7 +130,7 @@ def review_topics(df, review_column = "text",emotion_column = "emotion", min_top
 
     # Classifiying all texts into topics globally first
     Global_Topics = topic_modelling(df, review_column, min_topic_size=min_topic_size_global,
-                                    language=language, n_neighbors=n_neighbors, n_components=n_components, low_memory=low_memory,
+                                    language=language, n_neighbors=n_neighbors_global, n_components=n_components_global, low_memory=low_memory,
                                     embedding_model_name = embedding_model_name, embedding_device = embedding_device)
 
     df.rename(columns={'topic': 'global_topic', 'probability_topic': 'global_probability_topic'}, inplace=True)

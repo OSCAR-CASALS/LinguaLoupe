@@ -59,12 +59,12 @@ To run the pipeline, it is just needed to specify the following arguments and ru
 |-dt                    |--text_data                |TEXT_DATA                |csv, json, jsonl, tsv or xlsx file with text data.|
 |-text_c                |--text_column              |TEXT_COLUMN              |Column in TEXT_DATA which contains the texts to be analyzed|
 |-o                     |--output_directory         |OUTPUT_DIRECTORY         |Output directory, it will be the current working directory by default.|
-|-lang                  |--language                 |LANGUAGE                 |The main language used in your documents, it can be: 'english' (default), or 'spanish'.|
-|-mt                    |--model_type               |MODEL_NAME               |Whether to use a model for sentiment classification trained on social media data (use "social_media" option) or one fine-tuned for reviews (use "review" option), "social_media" is used by default.|
+|-lang                  |--language                 |LANGUAGE                 |The main language used in your documents, it can be any of the ones accepted by BERTopic.|
+|-mn                    |--model_name               |MODEL_NAME               |The hugging face model you want to use for sentiment classification. By default LinguaLoupe uses cardiffnlp/twitter-roberta-base-sentiment.|
 
 ### Opional arguments
 
-Additionally, you can set the following parameters so the report and csv files generated fit the data better.
+Additionally, you can set multiple optional parameters so the report and csv files generated fit the data better.
 
 |Abreviation                |Long argument               |Name                      |Description|
 |---------------------------|----------------------------|--------------------------|-----------|
@@ -76,16 +76,20 @@ Additionally, you can set the following parameters so the report and csv files g
 |-umap_colour               |--umap_colour               |UMAP_COLOUR               |Column in COLUMNS_TO_KEEP_TEXT by which the umap shown in the report will be colored by, this parameter can be specified more than once in case you want to generate multiple UMAPs coloured by different values.|
 |-col                       |--Category_Column              |CATEGORY_COLUMN              |Column by which to devide text in the report. By default it is a new column called 'emotion' created by the pipeline.|
 |-csv_sep                   |--csv_separation            |CSV_SEPARATION            |In case a csv file is used as input, specify the separation between values, it will be "," by default.|
-|-chunk_size                |--chunk_size                |CHUNK_SIZE                |Chunk size in which each text will be divided when performing sentiment classification. If not specified each text won't be divided in chunks when performing sentiment classification.|
+|-chunk_size                |--chunk_size                |CHUNK_SIZE                |Chunk size in which each text will be divided when performing sentiment classification. If not specified each text won't be divided in chunks when performing sentiment classification. If a text is divided by chunks the predominant emotion between all fragments will be the one selected for the text.|
 |-min_topic_size            |--minimum_topic_size        |MINIMUM_TOPIC_SIZE        |The minimum size of a topic. Increasing this value will lead to a lower number of clusters/topics and vice versa. By default is 10.|
 |-min_topic_size_global     |--minimum_topic_size_global |MINIMUM_TOPIC_SIZE_GLOBAL |The minimum size of a global topic. Increasing this value will lead to a lower number of clusters/topics and vice versa. By default it will have the same value as MINIMUM_TOPIC_SIZE|
 |-umap_n_neighbors_BERTopic|--umap_n_neighbors_BERTopic|UMAP_N_NEIGHBORS_BERTOPIC|Number of approximate nearest neighbors used to construct the UMAP used in BERTopic, 15 by default.|
+|-umap_n_neighbors_BERTopic_global|--umap_n_neighbors_BERTopic_global|UMAP_N_NEIGHBORS_BERTOPIC_GLOBAL|Number of approximate nearest neighbors used to construct the UMAP required by BERTopic for the global topic classification. By default it will be the same value as UMAP_N_NEIGHBORS_BERTOPIC.|
 |-umap_n_components_BERTopic|--umap_n_components_BERTopic|UMAP_N_COMPONENTS_BERTOPIC|Number of components of the UMAP used in BERTopic, 5 by default.|
+|-umap_n_components_BERTopic_global|--umap_n_components_BERTopic_global|UMAP_N_COMPONENTS_BERTOPIC_GLOBAL|Number of components of the UMAP required by BERTopic for the global topic classification. By default it will be the same value as UMAP_N_COMPONENTS_BERTOPIC.|
 |-umap_metric               |--umap_metric               |UMAP_METRIC              |Metric to be used when computing distances for umap, will be cosine by default. You can check all avalaible metrics here: https://umap-learn.readthedocs.io/en/latest/parameters.html|
 |-umap_n_neighbors         |--umap_n_neighbors         |UMAP_N_NEIGHBORS        |Number of approximate nearest neighbors used to construct the UMAP, 15 by default.|
 |-umap_min_dist             |--umap_min_dist             |UMAP_MIN_DIST            |Minimum distance apart that points are allowed to be in the umap, 0.1 by default.|
 |-e_model                   |--embedding_model           |EMBEDDING_MODEL          |Name or path of the model that will be used by BERTopic for embeddings through SentenceTransformers. If set to 'default', the program will use all-MiniLM-L6-v2 for english text and paraphrase-multilingual-MiniLM-L12-v2 for other languages.|
 |-d                  |--device           |DEVICE        |Device to be used for sentiment classification and embedding texts in topic classification. By default it will check if there are gpu avalaible (autodetect), if not, it will use cpu. If you want to specify a specific device you can either set it to cpu (it will use cpu regardless of if there are gpu avalaible) or cuda (utilizes an NVIDIA graphics card).|
+|-labels             |--labels           |LABELS        |If you want to map the labels outputed by the MODEL_NAME selected to something else, provide the path of a JSON file where the keys are the labels outputed by the hugging face model and the values the names you want to assign each of them in the report and the CSV files. You can check an example of the format in directory labels inside roberta.json|
+|-colors             |--report_colors    |REPORT_COLORS |Path to a Json file specifiying colours to be used for each category in the final html report. It must have the categories as keys and the colours as values.|
 
 ### Optional flag arguments
 
@@ -104,7 +108,7 @@ There are certain true and false parameters that affect how the pipeline works a
 Below there is an example on how to use the pipeline for sentiment and topic analysis on a dataset composed of tweets:
 
 ```
-python LinguaLoupe.py -ti GlobalWarmingTwitter -dt twitter_sentiment_data.csv -text_c tweets -min_topic_size 100 -o results -lang english -mt social_media
+python LinguaLoupe.py -ti GlobalWarmingTwitter -dt twitter_sentiment_data.csv -text_c tweets -min_topic_size 100 -o results -lang english -mn cardiffnlp/twitter-roberta-base-sentiment
 ```
 
 If you want to ignore sentiment classification and use another column from your dataset instead for the more in-depth analysis, the argument CATEGORY_COLUMN (-col) must be set with the name of the column you want to use.
@@ -152,30 +156,37 @@ This repository is divided as following:
 |src                   |Directory containing all functions the pipeline uses.|
 |requirements.txt      |The tools needed to run the program.|
 |LICENSE.txt           |License of the program.|
+|labels                |A directory containing an example of the format jsons used by the argument LABELS must follow.|
+|colors                |A directory containing an example of the format jsons used by the argument REPORT_COLORS must follow.|
 
 
 ## Tools used for sentiment and Topic classification.
 
-- For sentyment classification, depending on the language and the model type the following pretrained models are used: 
-    + **social_media**:
-        + English: cardiffnlp/twitter-roberta-base-sentiment_
-        + Spanish: _pysentimiento_.
-    + **review**:
-        + English: _siebert/sentiment-roberta-large-english_
-        + Spanish: _nlptown/bert-base-multilingual-uncased-sentiment_
-- For topic classification BERTopic was used.
+- For sentyment classification you can use any model from hugging face via the MODEL_NAME parameter. cardiffnlp/twitter-roberta-base-sentiment_ is set by default.
+
+- For topic classification BERTopic is used.
 
 ## Current Version
 
-LinguaLoupe is currently on version v.0.4.0-alpha.
+LinguaLoupe is currently on version v.0.5.0-alpha.
 
 ## Whats new compared to the previous version?
-
-- The _Summary.csv_ generated in the output has been overhauled, now the gbc option has been added so users can group by any category they want and count the number of appereances of each group in the dataset, as well as compute the mean or sum of any numerical column they want in the dataset.
 
 - Fixed a major bug where there could not be a column already named _emotion_ in TEXT_DATA.
 
 - As a consecuence from updating _Summary.csv_, it's generation has become faster.
+
+- Now LinguaLoupe accepts any sentiment classification model from huffing face instead of enforcing default ones. As a consecuence, users can personalize more their analysis and more languages aside from english and spanish can be used.
+
+- Added more options to customize the  global topic classification separately from the one performed for each category.
+
+- When chunk_size is set text won't be divided by length as in previous versions but instead by tokens.
+
+- Added parameter LABELS.
+
+- Added argument REPORT_COLORS so users can define the color asigned to each category in the html report.
+
+- Argument MODEL_TYPE has been changed to MODEL_NAME and now takes any hugging face model instead of the hardcoded previous ones.
 
 ## Planned updates
 
@@ -186,11 +197,13 @@ The following updates are planned for end of 2027:
 - Add more customization to the report.
 - Create a portable binary and executable (.exe) of LinguaLoupe so it can be used without the need of python.
 - Create examples of how this tool can be used with public datasets and how it can be used as a key piece for workflows focused on text analysis.
-- Add more options to customize the  global topic classification separately from the one performed for each category. 
+
 
 ## Warnings
 
 - As of now, if a column called emotion exists in TEXT_DATA aside from the one generated by LinguaLoupe, it's name will be changed to _emotion\_original_ in order to not raise issues with the column _emotion_ generated by the pipeline when performing sentiment classification; a more propper fix will come on later releases.
+
+- If a chunk_size is set, for each text the predominant emotion among all of it's fragments will be used. In case of a draw the most predominant emotions will be shown separated by a '-'.
 
 ## Citations
 

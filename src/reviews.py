@@ -7,7 +7,7 @@ from pathlib import Path
 from transformers import AutoTokenizer
 import statistics
 import pandas as pd
-from src.sentiment import load_classification_model, classify_text_sentiment, classify_text_no_english
+from src.sentiment import load_classification_model_hugging_face, classify_sentiment_text_hugging_face
 import warnings
 
 from bs4 import BeautifulSoup
@@ -18,7 +18,7 @@ def clean_html(text):
 def process_reviews(data_path, text_column, csv_sep = ",",
                     columns_to_keep = [],
                     convert_to_string = False, divide_in_chunks = 512, language = "english", m_type="social_media",
-                    clean_html_text = True, perform_sentiment_classification = True, sent_device = -1):
+                    clean_html_text = True, perform_sentiment_classification = True, sent_device = -1, labels = None):
     '''
     A function in charge of classifiying texts into positive, negative, or neutral.
     '''
@@ -83,30 +83,14 @@ def process_reviews(data_path, text_column, csv_sep = ",",
             columns_to_keep.remove("emotion_score")
             
         # loading model
-        model = load_classification_model(language=language, model_type=m_type, device=sent_device)
+        model = load_classification_model_hugging_face(model_name=m_type, device=sent_device)
 
         # Loading appropiate tokenizer just to check if the length of the text to classify exceeds 512.
         if divide_in_chunks is not None:
-            if language == "english":
-                if m_type == "social_media":
-                    tokenizer = AutoTokenizer.from_pretrained("cardiffnlp/twitter-roberta-base-sentiment", use_fast=True)
-                else:
-                    tokenizer = AutoTokenizer.from_pretrained("siebert/sentiment-roberta-large-english", use_fast=True)
-            else:
-                tokenizer = AutoTokenizer.from_pretrained("pysentimiento/robertuito-sentiment-analysis", use_fast=True)
+            tokenizer = AutoTokenizer.from_pretrained(m_type, use_fast=True)
             
 
-        # Decide wether to use text classification based on pysentimiento or Roberta.
-
-        def classify(text_to_classify):
-            '''
-            Classify text into POSITIVE, NEGATIVE, or NEUTRAL using either pysentimiento or cardiffnlp/twitter-roberta-base-sentiment
-            '''
-
-            if language == "english":
-                return classify_text_sentiment(text_to_classify, model, model_type=m_type)
-            
-            return classify_text_no_english(text_to_classify, model, language, model_type=m_type)
+        # Classify texts
 
         def classify_sentiments(text):
             '''
@@ -116,52 +100,62 @@ def process_reviews(data_path, text_column, csv_sep = ",",
             if divide_in_chunks is not None:
                 # If the size of the text is bigger than what ROBERTA can take,
                 # split it.
-                tokenized_text = tokenizer(text)["input_ids"]
-                t_size = len(tokenized_text)
+                tokenized_text = tokenizer(
+                    text,
+                    max_length=divide_in_chunks,
+                    truncation = True,
+                    padding = True,
+                    return_overflowing_tokens=True,
+                    stride=128,
+                    return_tensors='pt'
+                )["input_ids"]
 
-                if (t_size > divide_in_chunks):
-                    labels_to_numbers = {
-                        "NEGATIVE": 0,
-                        "NEUTRAL": 1,
-                        "POSITIVE": 2,
-                        "MIXED": 3
-                    }
-                    # To know which classification has been selected the most, a list with 3 zeros has been created, each
-                    # corresponding to a sentiment (negative, neutral and positive). Everytime a classification is made,
-                    # 1 is added to the corresponding indes. Once all classifications have been made, it is just a mater of selecting the biggest
-                    # number
-                    sents = [0, 0, 0, 0]
-                    scores = [[], [], [], []]
-                    c = 0
-                    for i in range(0, len(text), divide_in_chunks):
-                        if (i + divide_in_chunks) < (len(text) - 1):
-                            classification = classify(text[i:i + divide_in_chunks])
-                            index_list = labels_to_numbers[classification["label"]]
-                            sents[index_list] += 1
-                            scores[index_list].append(classification["score"])
-                            c += 1
-                    if c > 1:
-                        warnings.warn(f"Found a text with more than {divide_in_chunks} tokens ({t_size} tokens), the text will be divided into chunks of {divide_in_chunks}. After classifiying each chunk the predominant emotion will be selected.")
-                    # Finding predominant emotion
-                    max_sentiment = max(sents)
-                    chosen_sentiments = []
-                    for i in range(0, len(sents)):
-                        if sents[i] == max_sentiment:
-                            chosen_sentiments.append(i)
-                    # Computing and returning result, the reason why it is a list of list and not a single list
-                    # is in case of draws between emotions.
-                    result_sents = []
-                    result_scores = []
-                    for i in chosen_sentiments:
-                        result_sents.append(list(labels_to_numbers.keys())[i])
-                        result_scores.append(statistics.mean(scores[i]))
-                    if "MIXED" not in result_sents:
-                        return ['-'.join(result_sents), result_scores]
-                    return ["NEGATIVE-POSITIVE", result_scores]
+                t_size = len(tokenized_text)
+                
+                if (t_size > 1):
+
+                    #Apply classification to each fragment of the text divided in chunks
+
+                    labels_dictionary_chunks = {}
+                    scores = {}
+
+                    for chunk_ids in tokenized_text:
+                        iter_text = tokenizer.decode(chunk_ids, skip_special_tokens=True)
+                        sentiment = classify_sentiment_text_hugging_face(
+                            text = iter_text,
+                            classification_model = model,
+                            dictionary_labels = labels
+                            )
+
+                        # Keep results in respective dictionaries
+                        sent = sentiment["label"]
+
+                        if sent in labels_dictionary_chunks:
+                            labels_dictionary_chunks[sent] += 1
+                            scores[sent].append(sentiment["score"])
+                        else:
+                            labels_dictionary_chunks[sent] = 1
+                            scores[sent] = [sentiment["score"]]
+
+                    max_value = max(labels_dictionary_chunks.values())
+                    predominant_emotions = [k for k, v in labels_dictionary_chunks.items() if v == max_value]
+                    final_mean_scores = []
+
+                    for em in predominant_emotions:
+                        final_mean_scores.append(statistics.mean(scores[em]))
+
+                    return ['-'.join(predominant_emotions), final_mean_scores]
+
+                    
             # If the text has less than 512 tokens, just classify the whole text with Roberta.
             # The scores are returned in a list for consistency with the results of text with
             # a high ammount of tokens.
-            sentiment = classify(text)
+            sentiment = classify_sentiment_text_hugging_face(
+                text = text,
+                classification_model=model,
+                dictionary_labels=labels
+            )
+
             return [sentiment["label"], [sentiment["score"]]]
 
         # Classify texts into emotions.

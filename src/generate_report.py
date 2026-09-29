@@ -13,6 +13,7 @@ import nltk
 import umap
 import umap.plot
 import re
+from src.emotion_colors import colors_report
 
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
@@ -33,27 +34,15 @@ def get_colour_dict():
     '''
     Get dictionary used to colour plots
     '''
-    emotion_colours = {
-            "POSITIVE": "#639754",
-            "NEUTRAL": "#BDBABB",
-            "NEGATIVE": "#D61F1F",
-            "NEGATIVE-POSITIVE": "#FFD301",
-            "NEGATIVE-NEUTRAL": "#8B0000",
-            "NEUTRAL-POSITIVE": "#8B9A8B"
-        }
     
-    return emotion_colours
+    return colors_report.get_colors()
 
 def get_colour_plot(key):
     '''
     Get colour used in plots for a specific category.
     '''
-    dictionary_colours = get_colour_dict()
 
-    if key not in dictionary_colours.keys():
-        return None
-
-    return dictionary_colours[key]
+    return colors_report.get_particular_color(key)
 
 
 def generate_report(title, review_dataframe, topic_models, Global_topic_Model,lang="english", path = "", umap_summ_color = ["emotion"],
