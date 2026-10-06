@@ -1,22 +1,12 @@
 # LinguaLoupe
 
-## Overview
+## Description
 
 LinguaLoupe is an NLP analysis tool that combines transformer-based sentiment analysis with BERTopic to discover what a collection of texts is about and how its authors feel about those topics.
 
 It first performs a global topic analysis to identify the main themes across the entire dataset, and then performs a category-specific analysis, allowing users to explore how those topics differ across sentiment or any other category defined by them.
 
 The results are presented through interactive visualisations, automated reports, and CSV files that allow for further analysis.
-
-## Description
-
-LinguaLoupe is an NLP analysis tool for exploring large collections of text through topic modelling and sentiment analysis.
-
-More specifically, it consists of a data pipeline that combines transformer-based sentiment classification with BERTopic to uncover the main themes within a dataset and understand how those themes vary across different groups.
-
-This tool follows a two-level analysis approach. It first performs a global topic analysis, identifying the main topics and patterns across the entire dataset, and afterwards performs a category-specific topic analysis, allowing users to investigate how the topics change across sentiment or any other category they define. This makes it possible, for example, to identify the topics discussed overall and then compare which topics are associated with positive, neutral, or negative sentiment.
-
-The results are shown mainly in an HTML report complemented by a few CSV files.
 
 ### Key capabilities
 
@@ -43,19 +33,10 @@ The results are shown mainly in an HTML report complemented by a few CSV files.
 
 ### Conda
 
-To install the dependencies required to run the program you can create a _Conda_ environment from the yaml file provided with the follwing command:
+To install the dependencies required to run the program, you can create a _Conda_ environment from the YAML file provided with the following command:
 
 ```
 conda env create -f environment.yml
-```
-
-### Pip
-
-Alternatively, you can install the dependencies required to run the program with the
-file requirements.txt as following:
-
-```
-pip install -r requirements.txt
 ```
 
 ### Dependencies
