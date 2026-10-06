@@ -1,13 +1,43 @@
 # LinguaLoupe
 
+## Overview
+
+LinguaLoupe is an NLP analysis tool that combines transformer-based sentiment analysis with BERTopic to discover what a collection of texts is about and how its authors feel about those topics.
+
+It first performs a global topic analysis to identify the main themes across the entire dataset, and then performs a category-specific analysis, allowing users to explore how those topics differ across sentiment or any other category defined by them.
+
+The results are presented through interactive visualisations, automated reports, and CSV files that allow for further analysis.
+
 ## Description
 
-A data pipeline for sentiment analysis and topic classification, enabling to derive meaningful insights from collections of textual data, such as:
-reviews, online discussions, tweets, posts...
+LinguaLoupe is an NLP analysis tool for exploring large collections of text through topic modelling and sentiment analysis.
 
-Specifically, it first divides all texts into topics and emotions allowing for an overview of the data and, afterwords, it performs topic classification on each sentiment or category defined by the user separately so a more in-depth analysis can be perfomred.
+More specifically, it consists of a data pipeline that combines transformer-based sentiment classification with BERTopic to uncover the main themes within a dataset and understand how those themes vary across different groups.
 
-The results are shown mainly in an html report complemented by a few csv files.
+This tool follows a two-level analysis approach. It first performs a global topic analysis, identifying the main topics and patterns across the entire dataset, and afterwards performs a category-specific topic analysis, allowing users to investigate how the topics change across sentiment or any other category they define. This makes it possible, for example, to identify the topics discussed overall and then compare which topics are associated with positive, neutral, or negative sentiment.
+
+The results are shown mainly in an HTML report complemented by a few CSV files.
+
+### Key capabilities
+
+- Global topic analysis using BERTopic and sentence-transformer embeddings.
+
+- Category-specific topic analysis, allowing topics to be explored separately by sentiment or user-defined categories.
+
+- Sentiment analysis using Hugging Face transformer models.
+
+- Comparison of how topics and sentiment vary across categories.
+
+- Interactive visualisations for exploring topics and their relationships.
+
+- Support for CSV, TSV, JSON, JSONL, and XLSX input data.
+
+- Configurable models, labels, and analysis parameters.
+
+- Automated HTML reports and structured CSV outputs.
+
+- Command-line interface.
+
 
 ## Installation
 
@@ -120,6 +150,18 @@ Below is an example of how LinguaLoupe can be used to find different topics acro
 ```
 python LinguaLoupe.py -ti News_topics -dt news.csv -text_c Description -min_topic_size 100 -o results -lang english -col Class
 ```
+
+#### Practical Example
+
+Do you want to check an example of what kind of reports LinguaLoupe creates? 
+
+Feel free to consult the example output at: https://github.com/OSCAR-CASALS/Chat-Gpt-User-Reviews-Exploratory-Analysis
+
+This exploratory analysis was performed on a collection of ChatGPT user reviews last updated in 2024.
+
+For now, the repository contains only LinguaLoupe's output, but in the next few weeks a document will be added with the insights extracted thanks to LinguaLoupe. 
+
+As a tease, did you know that some users in 2024 complained about ChatGPT overheating their iPhones? A superficial look at the report already revealed that, for Negative reviews, the app version of the chatbot seems to be one of the major points of discussion; other topics also include users having issues providing their phone number for signing up, as they consider the app asks for too much personal information, while others noted that they tried signing up but their phone number was not accepted.
 
 ### Output
 
