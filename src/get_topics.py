@@ -7,6 +7,7 @@ from bertopic.representation import KeyBERTInspired
 import pandas as pd
 import warnings
 from sentence_transformers import SentenceTransformer
+from transformers import pipeline
 from umap import UMAP
 
 def load_BERT(lang = "english",
@@ -118,7 +119,9 @@ def topic_modelling(df, review_columns, min_topic_size=10, language="english", n
 
 def review_topics(df, review_column = "text",emotion_column = "emotion", min_topic_size=10, min_topic_size_global = 10,
                   language="english", n_neighbors=15, n_components=5, low_memory= True, perform_sentiment_classification = True,
-                  embedding_model_name = "all-MiniLM-L6-v2", embedding_device = None, n_neighbors_global = 15, n_components_global = 5):
+                  embedding_model_name = "all-MiniLM-L6-v2", embedding_device = None, n_neighbors_global = 15, n_components_global = 5,
+                  Summarization_Model = None, min_summary_length = 14, max_summary_length = 40,
+                  temperature_summ_model = 0.3):
     '''
     Divide positive, neutral and negative texts into topics.
     '''
@@ -135,6 +138,17 @@ def review_topics(df, review_column = "text",emotion_column = "emotion", min_top
 
     df.rename(columns={'topic': 'global_topic', 'probability_topic': 'global_probability_topic'}, inplace=True)
 
+    #Summarizing topics into sentences
+    if Summarization_Model is not None:
+        summarization = pipeline('text-generation', model = Summarization_Model, device_map="auto")
+        sentence_summary = summarize_topics_into_sentences(
+            bert_model=Global_Topics[0],
+            summerization_model=summarization,
+            max_output_length=max_summary_length,
+            df_add_column=Global_Topics[1],
+            temperature_summerization_model=temperature_summ_model
+        )
+
     if perform_sentiment_classification == True:
 
         # Get diferent levels the gropu columns has
@@ -148,6 +162,15 @@ def review_topics(df, review_column = "text",emotion_column = "emotion", min_top
                 n_neighbors=n_neighbors, n_components=n_components, low_memory=low_memory,
                 embedding_model_name = embedding_model_name, embedding_device = embedding_device
             )
+
+            if Summarization_Model is not None:
+                semtiment_sentence_summary = summarize_topics_into_sentences(
+                    bert_model=results[0],
+                    summerization_model=summarization,
+                    max_output_length=max_summary_length,
+                    df_add_column=results[1],
+                    temperature_summerization_model=temperature_summ_model
+                )
 
             concat_df.append(df_redux)
             resulting_df[0][lev] = results
@@ -163,3 +186,66 @@ def review_topics(df, review_column = "text",emotion_column = "emotion", min_top
     resulting_df.append(df_complete)
 
     return [Global_Topics, resulting_df]
+
+def summarize_topics_into_sentences(
+        bert_model,
+        summerization_model = None,
+        max_output_length = 50,
+        temperature_summerization_model = 0.3,
+        df_add_column = None
+        ):
+    '''
+    Create a sentence that summerized each topic with an LLM
+    '''
+
+    # Load summerization model
+    if summerization_model is None:
+        summerization_model = pipeline('text-generation', model = 'meta-llama/Llama-3.2-3B-Instruct', truncation = True, device_map="auto")
+
+    # For each topic get most representative docs
+    representative_docs = bert_model.get_representative_docs()
+
+    #dictionary where results will be kept
+    results = {}
+
+    # Loop through topics and generate a sentence
+
+    for topic, docs in representative_docs.items():
+
+        # Put docs in a string
+        documents = '\n- '.join(docs)
+
+        # Put keywords of each topic in a string
+        keywords_list = bert_model.get_topic(topic)
+        keywords = ", ".join([word[0] for word in keywords_list])
+
+        # Generate prompt
+        prompt = f"""
+You are an expert synthesizer.
+Read the following texts that belong to the same topic.
+Write a single sentence of maximum {max_output_length} words that captures the main idea or conclusion they have in common, without including secondary details.
+
+Texts to summarize:
+{documents}
+
+You can use the following keywords as support:
+{keywords}
+"""
+
+        sentence_topic = summerization_model(
+            prompt,
+            max_new_tokens = max_output_length*2,
+            temperature = temperature_summerization_model,
+            return_full_text=False,
+            do_sample=True
+            )[0]['generated_text']
+
+        results[topic] = sentence_topic
+
+        if df_add_column is not None:
+            df_add_column.loc[df_add_column['Topic'] == topic,'LinguaLoupe_summary'] = sentence_topic
+
+    return results
+        
+
+

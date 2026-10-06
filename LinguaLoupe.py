@@ -61,6 +61,8 @@ parser.add_argument("-e_model", "--embedding_model", default="default", help="Na
 parser.add_argument("-d", "--device", default="autodetect", help="Device to be used for sentiment classification and embedding texts in topic classification. By default it will check if there are gpu avalaible (autodetect), if not, it will use cpu. If you want to specify a specific device you can either set it to cpu (it will use cpu regardless of if there are gpu avalaible) or cuda (utilizes an NVIDIA graphics card)")
 
 parser.add_argument("-colors", "--report_colors", type=str, default=None, help="Path to a Json file specifiying colours to be used for each category in the final html report. It must have the categories as keys and the colours as values.")
+parser.add_argument("-summarize", "--summarization_model", type=str, default=None, help="A text-generation hugging face model to summerize the most representative texts of all topics into single sentences that will appear in Global_Topics.csv. If not set no summerization of topics will be performed.")
+parser.add_argument("-temperature", "--summarization_model_temperature", type=float, default=0.3, help="Temperature of SUMMARIZATION_MODEL.")
 
 args = parser.parse_args()
 
@@ -161,6 +163,10 @@ show_tables = args.show_tables
 emodel = args.embedding_model
 edevice = args.device
 sent_dev = args.device
+summ_model = args.summarization_model
+temp_model_summary = args.summarization_model_temperature
+
+print(f'Summarization model set to: {summ_model}. Temperature = {temp_model_summary}')
 
 print(f"Show tables set to: {show_tables}, Clean html set to: {c_html}")
 
@@ -253,7 +259,9 @@ run_sentiment_pipeline(text_data = text_data,
                        m_topic_size_global = m_topic_size_global,
                        n_neighbours_BERTopic_global=n_neighbours_BERTopic_global,
                        umap_n_components_BERTopic_global=n_components_BERTopic_global,
-                       emotion_labels=labels_dictionary)
+                       emotion_labels=labels_dictionary,
+                       summarization_model = summ_model,
+                       temperature_summarization_model = temp_model_summary)
 
 #absolute_path_to_html = os.path.abspath(output_directory)
 #webbrowser.open(f"file://{absolute_path_to_html}/report.html")

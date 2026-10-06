@@ -17,7 +17,8 @@ def run_sentiment_pipeline(text_data, title, text_col, cols_keep_text,
                            n_neighbours_BERTopic = 15, umap_n_components_BERTopic = 5, low_memory_BERTopic = True,
                            clean_html = True, include_tables = False, sentiment_classification = True, embedding_model_name = "all-MiniLM-L6-v2",
                            embedding_device = None, sentiment_device = -1,group_column = "emotion", m_topic_size_global = 10,
-                           n_neighbours_BERTopic_global = 15, umap_n_components_BERTopic_global = 5, emotion_labels = None):
+                           n_neighbours_BERTopic_global = 15, umap_n_components_BERTopic_global = 5, emotion_labels = None,
+                           summarization_model = None, temperature_summarization_model = 0.3):
     '''
     Run LinguaLoupe pipeline
     '''
@@ -58,7 +59,9 @@ def run_sentiment_pipeline(text_data, title, text_col, cols_keep_text,
         emotion_column=group_column,
         min_topic_size_global=m_topic_size_global,
         n_neighbors_global=n_neighbours_BERTopic_global,
-        n_components_global=umap_n_components_BERTopic_global
+        n_components_global=umap_n_components_BERTopic_global,
+        Summarization_Model=summarization_model,
+        temperature_summ_model=temperature_summarization_model
     )
     
     topics = topics_step[1]
@@ -95,7 +98,7 @@ def run_sentiment_pipeline(text_data, title, text_col, cols_keep_text,
         topics[0][k][1].to_csv(os.path.join(output_directory, file_name_topic_csv + ".csv"), sep=";", index=False)
 
     # Global most frequent topics
-    global_top_ten_topics.to_csv(os.path.join(output_directory, "Most_Frequent_Global_Topics.csv"), sep=";", index=False)
+    global_top_ten_topics.to_csv(os.path.join(output_directory, "Global_Topics.csv"), sep=";", index=False)
 
     print("Generating html report...")
     
