@@ -8,6 +8,8 @@ It first performs a global topic analysis to identify the main themes across the
 
 The results are presented through interactive visualisations, automated reports, and CSV files that allow for further analysis.
 
+You can check an example of the output provided by LinguaLoupe here: https://github.com/OSCAR-CASALS/Chat-Gpt-User-Reviews-Exploratory-Analysis. In this repository, you can find an exploratory analysis performed on ChatGPT user reviews, where, thanks to the visualizations, topic classifications, and AI summaries, it is possible to notice certain patterns, like negative reviews being mostly focused on the app version of ChatGPT.
+
 ### Key capabilities
 
 - Global topic analysis using BERTopic and sentence-transformer embeddings.
