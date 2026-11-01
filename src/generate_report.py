@@ -45,9 +45,30 @@ def get_colour_plot(key):
     return colors_report.get_particular_color(key)
 
 
+def generate_html_table(df, table_id):
+    '''
+    Generate a dima,ic datatable from a dataframe
+    '''
+    # Generate html of the table
+    table_html = df.to_html(index=False, classes="display", table_id=table_id, escape=False)
+    # Generate javascript code
+    topics_table_jav_script = "$(document).ready( function () {"
+    topics_table_jav_script += f"$('#{table_id}')"
+    topics_table_jav_script += f".DataTable();"
+    topics_table_jav_script += "});"
+
+    html_restulting = f'''
+    {table_html}
+    <script>
+    {topics_table_jav_script}
+    </script>
+'''
+    return html_restulting
+
+
 def generate_report(title, review_dataframe, topic_models, Global_topic_Model,lang="english", path = "", umap_summ_color = ["emotion"],
                     umap_met="cosine", neighbours_umap = 15, min_dist_umap = 0.1, include_table_emotions = False,
-                    sentiment_classification = True, group_col = "emotion"):
+                    sentiment_classification = True, group_col = "emotion", show_topics_table = False, multidimension_UMAP = False, marker_size = 1):
     '''
     Generate html report for an exploratory sentiment and topic analysis.
     '''
@@ -348,6 +369,19 @@ button:hover{
         <p>A heatmap showing how similar the topics are between them.</p>
         {heatmap_div}
         '''
+
+        if show_topics_table == True:
+            # Topic most representative documents and AI summary
+            topic_documents_df = Global_topic_Model[1]
+            topic_documents_df.drop(['Count', 'Main Words', 'c-TF-IDF score', 'Most representative texts'], axis = 1, inplace = True)
+            topic_documents_df.rename(columns = {'Most representative texts HTML': 'Most representative texts'}, inplace = True)
+            table_topic_html = generate_html_table(topic_documents_df, 'Table_Topics_Global')
+            res += f'''
+        <h4 id="SummaryGlobalTopicsTable">Most representative texts for each topic</h4>
+        <p>A table displaying the most representative texts for each topic.</p>
+        {table_topic_html}
+'''
+
         return res
 
     def generate_html_for_emotion(em):
@@ -555,6 +589,17 @@ button:hover{
             </script>
             '''
 
+        if show_topics_table == True:
+            # Topic most representative documents and AI summary
+            topics_freqs_dataframe.drop(['Count', 'Main Words', 'c-TF-IDF score', 'Most representative texts'], axis = 1, inplace = True)
+            topics_freqs_dataframe.rename(columns = {'Most representative texts HTML': 'Most representative texts'}, inplace = True)
+            emotion_table_topic_html = generate_html_table(topics_freqs_dataframe, f'Table_{em}_Topics_Rep')
+            res += f'''
+            <h4 id="SummaryTopicsTable{em}">Most representative texts for each topic</h4>
+            <p>A table displaying the most representative texts for each topic.</p>
+            {emotion_table_topic_html}
+        '''
+
         res += "</div>"
 
         return res
@@ -590,13 +635,21 @@ button:hover{
         'font': {'size': 24, 'family': 'Arial', 'color': 'black'},  # Size and font
         'x': 0.5,  # Centered title
     })
+
+    boxplot_review_length.update_traces(boxmean = True)
+
     boxplot_review_length_div = pio.to_html(boxplot_review_length, full_html=False, include_plotlyjs="cdn")
 
     # Dimensionality reduction visualisation UMAP
 
     tfidf_vectorizer = TfidfVectorizer(min_df=5, stop_words=stopwords.words(lang))
     tfidf_word_doc_matrix = tfidf_vectorizer.fit_transform(review_dataframe["text"])
-    tfidf_umap = umap.UMAP(n_components=2,metric=umap_met, min_dist=min_dist_umap, n_neighbors=neighbours_umap)
+
+    components_overview_umap = 2
+    if multidimension_UMAP == True:
+        components_overview_umap = 3
+    
+    tfidf_umap = umap.UMAP(n_components=components_overview_umap,metric=umap_met, min_dist=min_dist_umap, n_neighbors=neighbours_umap)
     tfidf_embedding = tfidf_umap.fit_transform(tfidf_word_doc_matrix)
     
     # Colour umap by different columns
@@ -609,14 +662,46 @@ button:hover{
 
     for variable in umap_summ_color:
         # Create scatter plot from umap coloring by variable
-        umap_fig_em = px.scatter(tfidf_embedding[:,0], tfidf_embedding[:,1], color=review_dataframe[variable], color_discrete_map=get_colour_dict(),
-                             title=variable)
+        if multidimension_UMAP == True:
+            umap_fig_em = px.scatter_3d(
+                x = tfidf_embedding[:,0],
+                y = tfidf_embedding[:,1],
+                z = tfidf_embedding[:,2],
+                color=review_dataframe[variable],
+                color_discrete_map=get_colour_dict(),
+                title=variable,
+                labels = {
+                    'x': 'UMAP 1',
+                    'y': 'UMAP 2',
+                    'z': 'UMAP 3'
+                },
+                hover_data = {
+                    'index':  review_dataframe.index.astype(str)
+                }
+            )
+        else:
+            umap_fig_em = px.scatter(
+                x = tfidf_embedding[:,0],
+                y = tfidf_embedding[:,1],
+                color=review_dataframe[variable],
+                color_discrete_map=get_colour_dict(),
+                title=variable,
+                labels = {
+                    'x': 'UMAP 1',
+                    'y': 'UMAP 2'
+                },
+                hover_data = {
+                    'index':  review_dataframe.index.astype(str)
+                }
+            )
     
         umap_fig_em.update_layout(title = {
             'text': '<b>UMAP</b>',
             'font': {'size': 24, 'family': 'Arial', 'color': 'black'},  # Size and font
             'x': 0.5,  # Centered title
         })
+
+        umap_fig_em.update_traces(marker_size=marker_size)
         
         # Create div that will contain the umap
         umap_fig_em_div = pio.to_html(umap_fig_em, full_html=False, include_plotlyjs="cdn")

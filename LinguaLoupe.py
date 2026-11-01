@@ -53,6 +53,9 @@ parser.add_argument("-lang", "--language", type=str, help="The main language use
 parser.add_argument("-umap_metric", "--umap_metric", type=str, default="cosine", help="Metric to be used when computing distances for umap, will be cosine by default. You can check all avalaible metrics here: https://umap-learn.readthedocs.io/en/latest/parameters.html")
 parser.add_argument("-umap_n_neighbors", "--umap_n_neighbors", type=int, default=15, help="Number of approximate nearest neighbors used to construct the UMAP, 15 by default.")
 parser.add_argument("-umap_min_dist", "--umap_min_dist", type=float, default=0.1, help="Minimum distance apart that points are allowed to be in the umap, 0.1 by default.")
+parser.add_argument("-3D_UMAP", "--Three_Dimensional_UMAP", action="store_true", help="Set this flag when you want 3D umaps in the html report's overview.")
+
+parser.add_argument("-marker_size", "--marker_size_umap_overview", type=float, default=5.0, help="The size of each dot in the UMAPs present in the overview section of the HTML review.")
 
 parser.add_argument("-not_clean_html", "--not_clean_html", action="store_false", help="By default html characters are removed from the text column prior to sentiment and topic classification. Set this flag to not remove them.")
 parser.add_argument("-s_tables", "--show_tables", action="store_true", help="By default the html report does not show the texts belonging to each topic, sentiment or group. Set this flag to show them.")
@@ -63,6 +66,8 @@ parser.add_argument("-d", "--device", default="autodetect", help="Device to be u
 parser.add_argument("-colors", "--report_colors", type=str, default=None, help="Path to a Json file specifiying colours to be used for each category in the final html report. It must have the categories as keys and the colours as values.")
 parser.add_argument("-summarize", "--summarization_model", type=str, default=None, help="A text-generation hugging face model to summerize the most representative texts of all topics into single sentences that will appear in Global_Topics.csv. If not set no summerization of topics will be performed.")
 parser.add_argument("-temperature", "--summarization_model_temperature", type=float, default=0.3, help="Temperature of SUMMARIZATION_MODEL.")
+
+parser.add_argument("-show_topics", "--show_representative_docs_and_summaries", action="store_true", help="If you want the most representative texts of each topic, as well as the AI summaries created with SUMMARIZATION_MODEL if defined, to appear in the html report as a table set this flag.")
 
 args = parser.parse_args()
 
@@ -166,6 +171,9 @@ sent_dev = args.device
 summ_model = args.summarization_model
 temp_model_summary = args.summarization_model_temperature
 
+Three_Dimensional_UMAP = args.Three_Dimensional_UMAP
+Marker_Size = args.marker_size_umap_overview
+
 print(f'Summarization model set to: {summ_model}. Temperature = {temp_model_summary}')
 
 print(f"Show tables set to: {show_tables}, Clean html set to: {c_html}")
@@ -229,6 +237,7 @@ if report_cols is not None:
 
 colors_report.set_colors(colors_dictionary)
 
+show_summaries_report = args.show_representative_docs_and_summaries
 
 run_sentiment_pipeline(text_data = text_data,
                        title = title,
@@ -261,7 +270,10 @@ run_sentiment_pipeline(text_data = text_data,
                        umap_n_components_BERTopic_global=n_components_BERTopic_global,
                        emotion_labels=labels_dictionary,
                        summarization_model = summ_model,
-                       temperature_summarization_model = temp_model_summary)
+                       temperature_summarization_model = temp_model_summary,
+                       summary_table_topics_report_show = show_summaries_report,
+                       Three_dimensions_umap=Three_Dimensional_UMAP,
+                       marker_size_umap_overview = Marker_Size)
 
 #absolute_path_to_html = os.path.abspath(output_directory)
 #webbrowser.open(f"file://{absolute_path_to_html}/report.html")

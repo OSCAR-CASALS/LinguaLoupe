@@ -95,6 +95,8 @@ def topic_modelling(df, review_columns, min_topic_size=10, language="english", n
     # Getting most important words for each topic
     main_words = []
     score = []
+    representative_words = []
+    representative_words_html = []
 
     def add_words(x):
         t = topic_model.get_topic(x)
@@ -107,11 +109,23 @@ def topic_modelling(df, review_columns, min_topic_size=10, language="english", n
         main_words.append(','.join(w))
         score.append(','.join(s))
 
+        # Get most representative words for each topic
+        representative_docs = topic_model.get_representative_docs(x)
+        documents = '\n\n- '.join(representative_docs)
+        documents_html = '</li><li>'.join(representative_docs)
+        documents_html = '<ul><li>' + documents_html + '</li></ul>'
+        representative_words.append('- ' + documents)
+        representative_words_html.append(documents_html)
+
     top_topics["Topic"].apply(add_words)
 
     top_topics["Main Words"] = main_words
 
     top_topics["c-TF-IDF score"] = score
+
+    top_topics["Most representative texts"] = representative_words
+
+    top_topics["Most representative texts HTML"] = representative_words_html
 
     # Returning model and dataframe with top 10 topics
 
