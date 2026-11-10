@@ -98,7 +98,7 @@ def process_reviews(data_path, text_column, csv_sep = ",",
             '''
 
             if divide_in_chunks is not None:
-                # If the size of the text is bigger than what ROBERTA can take,
+                # If the size of the text is bigger than the user's specified chunk size,
                 # split it.
                 tokenized_text = tokenizer(
                     text,
@@ -114,7 +114,7 @@ def process_reviews(data_path, text_column, csv_sep = ",",
                 
                 if (t_size > 1):
 
-                    #Apply classification to each fragment of the text divided in chunks
+                    # Apply classification to each fragment of the text divided in chunks
 
                     labels_dictionary_chunks = {}
                     scores = {}
@@ -147,7 +147,7 @@ def process_reviews(data_path, text_column, csv_sep = ",",
                     return ['-'.join(predominant_emotions), final_mean_scores]
 
                     
-            # If the text has less than 512 tokens, just classify the whole text with Roberta.
+            # If the text has less tokens than chunk_size, just classify the whole text.
             # The scores are returned in a list for consistency with the results of text with
             # a high ammount of tokens.
             sentiment = classify_sentiment_text_hugging_face(

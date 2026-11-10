@@ -3,7 +3,6 @@ Script containing functions to load and use roberta pretrained models.
 '''
 
 from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification, CamembertTokenizer
-from pysentimiento import create_analyzer
 
 
 def load_classification_model_hugging_face(

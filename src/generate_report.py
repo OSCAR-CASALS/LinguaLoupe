@@ -29,6 +29,7 @@ def install_stopwords():
         stopwords.words('english')
     except LookupError:
         nltk.download("stopwords")
+        stopwords.words('english')
 
 def get_colour_dict():
     '''
@@ -346,7 +347,7 @@ button:hover{
 
         res = f'''
         <h3 id="Wordcloud">Word cloud</h3>
-        <p>Most frequent words across all texts</p>
+        <p>Most frequent words across all texts. The bigger the word the most frequent it is.</p>
         <img src='data:image/png;base64,{html_str_wordcloud}'>
         <h4 id="TopicFreqs">Global Topic Counts</h4>
         <p>Barplot displaying how many times a topic appears.</p>
