@@ -195,7 +195,7 @@ This repository is divided as follows:
 
 ## Current Version
 
-LinguaLoupe is currently on version v.0.5.2-alpha.
+LinguaLoupe is currently on version v.0.5.3-alpha.
 
 ## What's new compared to the previous version?
 
@@ -224,6 +224,8 @@ LinguaLoupe is currently on version v.0.5.2-alpha.
 - Created parameter THREE_DIMENSIONAL_UMAP which allows to create 3 component UMAPs in the html report's overview that can be explored in a 3d space.
 
 - Created parameter MARKER_SIZE_UMAP_OVERVIEW to adjust the size of the dots in the UMAP present in the html report's overview.
+
+- Removed Pysentimiento depndency.
 
 ## Planned updates
 
