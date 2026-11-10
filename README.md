@@ -50,7 +50,6 @@ For running LinguaLoupe, Python version 3.14.6 and the following libraries are r
 |Argparse                        |1.1      |A module to easily write user-friendly command-line interfaces |
 |PyTorch                         |2.11.0   |A framework to simplify the process of building, training, and deploying deep models|
 |Transformers                    |5.14.1   |A toolkit to access Hugging Face's pre-trained models.|
-|Pysentimiento                   |0.7.3    |A Transformer-based library for SocialNLP tasks.|
 |Pandas                          |3.0.3    |Package that provides fast, flexible, and expressive data structures designed to make working with "relational" or "labeled" data both easy and intuitive.|
 |BeautifulSoup                  |4.15.0   |Library for pulling data out of HTML and XML files.|
 |BERTopic                        |0.17.4   |A library to perform topic modeling and classification with state-of-the-art transformer models.|
@@ -125,21 +124,19 @@ There are certain true and false parameters that affect how the pipeline works a
 
 Would you like to see what kind of reports LinguaLoupe generates? 
 
-Feel free to consult an example output alongside a report showing how LinguaLoupe transforms a collection of unstructured user feedback into structured topics and actionable insights:
+Feel free to consult exploratory this analysis of chatgpt user reviews from 2024 that uses LinguaLoupe to explore the different topics present in the dataset and find out what people like and dislike about this chatbot.
 
 [https://github.com/OSCAR-CASALS/Chat-Gpt-User-Reviews-Exploratory-Analysis](https://github.com/OSCAR-CASALS/Exploratory-analysis-of-2024-chatgpt-reviews-with-LinguaLoupe)
 
 ### Example of commands that can be built with LinguaLoupe
 
-Below is an example of how to use the pipeline for sentiment and topic analysis on a dataset composed of tweets:
+Below is an example of how to use the pipeline for sentiment and topic analysis:
 
 ```
 python LinguaLoupe.py -ti GlobalWarmingTwitter -dt twitter_sentiment_data.csv -text_c tweets -min_topic_size 100 -o results -lang english -mn cardiffnlp/twitter-roberta-base-sentiment
 ```
 
-If you want to ignore sentiment classification and use another column from your dataset instead for the more in-depth analysis, the argument CATEGORY_COLUMN (-col) must be set to the name of the column you want to use.
-
-Below is an example of how LinguaLoupe can be used to find different topics across multiple news articles, each belonging to a different class.
+If you want to ignore sentiment classification and use another column from your dataset instead for the more in-depth analysis, the argument CATEGORY_COLUMN (-col) must be set to the name of the column you want to use. For example:
 
 ```
 python LinguaLoupe.py -ti News_topics -dt news.csv -text_c Description -min_topic_size 100 -o results -lang english -col Class
