@@ -41,6 +41,12 @@ To install the dependencies required to run the program, you can create a _Conda
 conda env create -f environment.yml
 ```
 
+Alternatively, you can also create a pip environment using the requiremnts.txt provided in this repository:
+
+```
+pip install -r requirements.txt
+```
+
 ### Dependencies
 
 For running LinguaLoupe, Python version 3.14.6 and the following libraries are required:
