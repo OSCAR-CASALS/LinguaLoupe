@@ -10,7 +10,7 @@ The results are presented through interactive visualizations inside html reports
 
 You can check an example of the output provided by LinguaLoupe, alongside an analysis of the results obtained, here: https://github.com/OSCAR-CASALS/Exploratory-analysis-of-2024-chatgpt-reviews-with-LinguaLoupe. 
 
-The URL above shows an exploratory analysis performed with LinguaLoupe on a collection of user reviews about ChatGPT where, thanks to the visualizations and topic classifications generated, different insights are extracted, like most reviews focusing on the app version of ChatGPT rather than the AI itself, showing that the interface surrounding OpenAI's model is as important as the chatbot itself.
+The URL above shows an exploratory analysis performed with LinguaLoupe on a collection of user reviews about ChatGPT where, thanks to the visualizations and topic classifications generated, different insights are extracted, like most reviewers focusing on the app version of ChatGPT rather than the AI itself, showing that the interface surrounding OpenAI's model is as important as the chatbot itself.
 
 ![HTML_Report_Gif](images/Report_GIF.gif)
 
