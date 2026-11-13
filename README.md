@@ -135,7 +135,7 @@ Would you like to see what kind of reports LinguaLoupe generates?
 
 Feel free to consult exploratory this analysis of chatgpt user reviews from 2024 that uses LinguaLoupe to explore the different topics present in the dataset and find out what people like and dislike about this chatbot.
 
-[https://github.com/OSCAR-CASALS/Chat-Gpt-User-Reviews-Exploratory-Analysis](https://github.com/OSCAR-CASALS/Exploratory-analysis-of-2024-chatgpt-reviews-with-LinguaLoupe)
+https://github.com/OSCAR-CASALS/Exploratory-analysis-of-2024-chatgpt-reviews-with-LinguaLoupe
 
 In set analysis, LinguaLoupe allows to notice certain patterns like most reviewers focusing on the app surrounding ChatGPT itself, rather than the chatbot, as well as noticing common patterns in the negative reviews like authenitification problems, phones overheating, lack of an IPad version...
 
