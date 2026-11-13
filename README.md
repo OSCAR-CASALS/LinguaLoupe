@@ -6,7 +6,7 @@ LinguaLoupe is an exploratory data analysis tool that combines transformer-based
 
 It first performs a global topic analysis to identify the main themes across the entire dataset, and then performs a category-specific analysis, allowing users to explore how those topics differ across sentiment or any other category defined by them.
 
-The results are presented through interactive visualisations in automated reports, and CSV files that allow for further analysis.
+The results are presented through interactive visualizations inside html reports, and CSV files that allow for further analysis.
 
 You can check an example of the output provided by LinguaLoupe, alongside an analysis of the results obtained, here: https://github.com/OSCAR-CASALS/Exploratory-analysis-of-2024-chatgpt-reviews-with-LinguaLoupe. 
 
