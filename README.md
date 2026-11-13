@@ -2,7 +2,7 @@
 
 ## Description
 
-LinguaLoupe is an exploratory data analysis tool that combines transformer-based sentiment analysis with BERTopic to discover what a collection of texts is about and how its authors feel about those topics.
+LinguaLoupe is an exploratory data analysis tool that combines transformer-based sentiment classification with BERTopic to discover what a collection of texts is about and how its authors feel about those topics.
 
 It first performs a global topic analysis to identify the main themes across the entire dataset, and then performs a category-specific analysis, allowing users to explore how those topics differ across sentiment or any other category defined by them.
 
