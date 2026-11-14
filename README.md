@@ -38,7 +38,7 @@ The URL above shows an exploratory analysis performed with LinguaLoupe on a coll
 
 ## Installation
 
-LinguaLopue can be installed with _pipx_ either through a Wheel file or via the repository itself.
+LinguaLopue can be installed alongside it's dependencies with _pipx_, either through a Wheel file or via the repository itself.
 
 ### Wheel file
 
