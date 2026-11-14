@@ -38,21 +38,42 @@ The URL above shows an exploratory analysis performed with LinguaLoupe on a coll
 
 ## Installation
 
-### Conda
+LinguaLopue can be installed with _pipx_ either through a Wheel file or via the repository itself.
 
-To install the dependencies required to run the program, you can create a _Conda_ environment from the YAML file provided with the following command:
+### Wheel file
 
-```
-conda env create -f environment.yml
-```
+To do it, you'll need the wheel file of the most recent version of  provided in [_releases_](https://github.com/OSCAR-CASALS/LinguaLoupe/releases).
 
-Alternatively, you can also create a pip environment using the requiremnts.txt provided in this repository:
+Once downloaded, you can simply run pipx install. You can specify a python version installed in your system with --python or remove this argument to use the default one.
 
 ```
-pip install -r requirements.txt
+pipx install --python python3.14 lingualoupe-0.5.3a0-py3-none-any.whl
 ```
 
-### Dependencies
+You can test if LinguaLoupe has been installed correctly through the following command.
+```
+lingualoupe --version
+```
+
+The following commands can be used in linux to download LinguaLoupe in one single step
+
+```
+wget https://github.com/OSCAR-CASALS/LinguaLoupe/releases/download/v.0.5.3-alpha/lingualoupe-0.5.3a0-py3-none-any.whl
+
+pipx install --python python3.14 lingualoupe-0.5.3a0-py3-none-any.whl
+```
+
+### Through GitHub repository
+
+Pipx also allows to install Command Line Tools from a repositoris url.
+
+To install LinguaLoupe with this method you just need to execute the following command.
+
+```
+pipx install --python python3.14 git+https://github.com/OSCAR-CASALS/LinguaLoupe.git
+```
+
+## Dependencies
 
 For running LinguaLoupe, Python version 3.14.6 and the following libraries are required:
 
@@ -72,10 +93,25 @@ For running LinguaLoupe, Python version 3.14.6 and the following libraries are r
 |Wordcloud                       |1.9.6    |A word cloud generator in Python.|
 |Matplotlib                      |3.11.0   |A comprehensive library for creating static, animated, and interactive visualizations in Python.|
 
+If the user wants to run LinguaLoupe from source, it can be done by installing all dependencies required through the conda or pip environments provided:
+
+- Install dependencies with pip through using the provided _requirements.txt_
+
+```
+pip install -r requirements.txt
+```
+
+- Install dependencies with Conda using the provided _environment.yml_.
+
+```
+conda env create -f environment.yml
+```
+
+
 
 ## Usage
 
-To run the pipeline, it is just needed to specify the following arguments and run LinguaLoupe.py:
+To run the pipeline, it is just needed to run the command _lingualoupe_ with the following arguments:
 
 |Abreviation            |Long argument              |Name                     |Description|
 |-----------------------|---------------------------|-------------------------|---------|
@@ -146,13 +182,13 @@ In set analysis, LinguaLoupe allows to notice certain patterns like most reviewe
 Below is an example of how to use the pipeline for sentiment and topic analysis:
 
 ```
-python LinguaLoupe.py -ti GlobalWarmingTwitter -dt twitter_sentiment_data.csv -text_c tweets -min_topic_size 100 -o results -lang english -mn cardiffnlp/twitter-roberta-base-sentiment
+lingualoupe -ti GlobalWarmingTwitter -dt twitter_sentiment_data.csv -text_c tweets -min_topic_size 100 -o results -lang english -mn cardiffnlp/twitter-roberta-base-sentiment
 ```
 
 If you want to ignore sentiment classification and use another column from your dataset instead for the more in-depth analysis, the argument CATEGORY_COLUMN (-col) must be set to the name of the column you want to use. For example:
 
 ```
-python LinguaLoupe.py -ti News_topics -dt news.csv -text_c Description -min_topic_size 100 -o results -lang english -col Class
+lingualoupe -ti News_topics -dt news.csv -text_c Description -min_topic_size 100 -o results -lang english -col Class
 ```
 
 ### Output
@@ -291,13 +327,14 @@ LinguaLoupe is currently on version v.0.5.3-alpha.
 
 - Removed Pysentimiento depndency.
 
+- Added _pyproject.toml_ file and pipx wheel file. Updated README with instructions on how to install LinguaLoupe via pipx.
+
 ## Planned updates
 
 The following updates are planned for the end of 2027:
 
 - Desktop app that will allow users to use the pipeline outside the Command Line.
 - Add more customization to the report.
-- Create a portable binary and executable (.exe) of LinguaLoupe so it can be used without the need for Python.
 
 ## Warnings
 
