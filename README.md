@@ -315,6 +315,7 @@ The following updates are planned for the end of 2027:
 
 - Desktop app that will allow users to use the pipeline outside the Command Line.
 - Add more customization to the report.
+- Adapt HTML reports so they can be observed through phone screens.
 
 ## Warnings
 
