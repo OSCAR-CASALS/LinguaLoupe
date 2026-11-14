@@ -283,7 +283,7 @@ This repository is divided as follows:
 |LICENSE.txt           |License of the program.|
 |labels                |A directory containing an example of the format JSONs used by the argument LABELS must follow.|
 |colors                |A directory containing an example of the format JSONs used by the argument REPORT_COLORS must follow.|
-
+|pyproject.toml        |Configuration file for pipx.|
 
 ## Tools used for sentiment and Topic classification.
 
@@ -299,33 +299,13 @@ LinguaLoupe is currently on version v.0.5.3-alpha.
 
 ## What's new compared to the previous version?
 
-- Fixed a major bug where there could not be a column already named _emotion_ in TEXT_DATA.
-
-- As a consequence of updating _Summary.csv_, its generation has become faster.
-
-- Now LinguaLoupe accepts any sentiment classification model from Hugging Face instead of enforcing default ones. As a consequence, users can personalize their analysis more, and more languages aside from English and Spanish can be used.
-
-- Added more options to customize the  global topic classification separately from the one performed for each category.
-
-- When chunk_size is set, text won't be divided by length as in previous versions but instead by tokens.
-
-- Added parameter LABELS.
-
-- Added argument REPORT_COLORS so users can define the color assigned to each category in the HTML report.
-
-- Argument MODEL_TYPE has been changed to MODEL_NAME and now takes any Hugging Face model instead of the hardcoded previous ones.
-
-- Changed misleading name _Most\_Frequent\_Global\_Topics.csv_ to _Global\_Topics.csv_
-
-- SUMMARIZATION_MODEL and SUMMARIZATION_MODEL_TEMPERATURE arguments have been added so users can create one-sentence summaries of each topic detected by BERTopic.
-
 - Fixed bug on the UMAP's overview code.
 
 - Created parameter THREE_DIMENSIONAL_UMAP which allows to create 3 component UMAPs in the html report's overview that can be explored in a 3d space.
 
 - Created parameter MARKER_SIZE_UMAP_OVERVIEW to adjust the size of the dots in the UMAP present in the html report's overview.
 
-- Removed Pysentimiento depndency.
+- Removed Pysentimiento dependency.
 
 - Added _pyproject.toml_ file and pipx wheel file. Updated README with instructions on how to install LinguaLoupe via pipx.
 
