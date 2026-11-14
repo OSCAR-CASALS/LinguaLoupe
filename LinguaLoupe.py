@@ -1,3 +1,19 @@
+import warnings
+from numba.core.errors import NumbaWarning
+import sys
+# Do not show double copilation numba warning
+warnings.filterwarnings(
+    "ignore",
+    message=".*Compilation requested for previously compiled argument types.*",
+    category=NumbaWarning
+)
+
+# If argument VERSION is being used, display LinguaLoupe version and quit.
+arguments_command_line = sys.argv[1:]
+if ('-v' in  arguments_command_line) or ('--version' in arguments_command_line):
+    print('v.0.5.3-alpha.')
+    sys.exit()
+
 from src.run_pipeline import run_sentiment_pipeline
 from src.generate_report import install_stopwords
 from src.emotion_colors import colors_report
@@ -7,6 +23,7 @@ import torch
 import json
 
 def main():
+
     parser = argparse.ArgumentParser()
     parser.add_argument("-ti", "--title", type=str, help="Title of the report,if not specified it will be the same as the file containig the collection of texts.",
                         default = "None", required=False)
@@ -275,6 +292,8 @@ def main():
                         summary_table_topics_report_show = show_summaries_report,
                         Three_dimensions_umap=Three_Dimensional_UMAP,
                         marker_size_umap_overview = Marker_Size)
+
+    return 0
 
     #absolute_path_to_html = os.path.abspath(output_directory)
     #webbrowser.open(f"file://{absolute_path_to_html}/report.html")
