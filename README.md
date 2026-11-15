@@ -152,6 +152,7 @@ Additionally, it is possible to set multiple optional parameters so the output f
 |-colors             |--report_colors      |REPORT_COLORS |Path to a JSON file specifying colours to be used for each category in the final HTML report. It must have the categories as keys and the colours as values.|
 |-summarize          |--summarization_model|SUMMARIZATION_MODEL|A text-generation Hugging Face model to summarize the 3 most representative texts of all topics into single sentences that will appear in Global_Topics.csv. If not set no summerization of topics will be performed.|
 |-temperature        |--summarization_model_temperature|SUMMARIZATION_MODEL_TEMPERATURE|Temperature of SUMMARIZATION_MODEL. It controls the randomness and creativity of the text the model generates; the lower the value, the more adjusted to the references the summaries will be.|
+|-max_len            |--maximum_length    |MAXIMUM_LENGTH|Maximum length of texts in Sentiment Classification, any texts that surpass it will be truncated.|
 
 ### Optional flag arguments
 
@@ -308,6 +309,8 @@ LinguaLoupe is currently on version v.0.5.3-alpha.
 - Removed Pysentimiento dependency.
 
 - Added _pyproject.toml_ file and pipx wheel file. Updated README with instructions on how to install LinguaLoupe via pipx.
+
+- Added MAX_LENGTH parameter.
 
 ## Planned updates
 
