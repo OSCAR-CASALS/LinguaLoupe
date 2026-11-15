@@ -7,13 +7,14 @@ from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassifica
 
 def load_classification_model_hugging_face(
         model_name="cardiffnlp/twitter-roberta-base-sentiment",
-        device = -1
+        device = -1,
+        max_l = 512
     ):
     '''
     Load sentiment classification model from hugging face
     '''
 
-    classifier = pipeline("sentiment-analysis", model=model_name, device=device)
+    classifier = pipeline("sentiment-analysis", model=model_name, device=device, max_length = max_l, truncation = True)
     
     return classifier
 

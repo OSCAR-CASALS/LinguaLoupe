@@ -18,7 +18,7 @@ def clean_html(text):
 def process_reviews(data_path, text_column, csv_sep = ",",
                     columns_to_keep = [],
                     convert_to_string = False, divide_in_chunks = 512, language = "english", m_type="social_media",
-                    clean_html_text = True, perform_sentiment_classification = True, sent_device = -1, labels = None):
+                    clean_html_text = True, perform_sentiment_classification = True, sent_device = -1, labels = None, max_length_data = 512):
     '''
     A function in charge of classifiying texts into positive, negative, or neutral.
     '''
@@ -83,7 +83,7 @@ def process_reviews(data_path, text_column, csv_sep = ",",
             columns_to_keep.remove("emotion_score")
             
         # loading model
-        model = load_classification_model_hugging_face(model_name=m_type, device=sent_device)
+        model = load_classification_model_hugging_face(model_name=m_type, device=sent_device, max_l = max_length_data)
 
         # Loading appropiate tokenizer just to check if the length of the text to classify exceeds 512.
         if divide_in_chunks is not None:

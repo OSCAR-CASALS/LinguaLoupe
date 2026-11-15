@@ -19,7 +19,7 @@ def run_sentiment_pipeline(text_data, title, text_col, cols_keep_text,
                            embedding_device = None, sentiment_device = -1,group_column = "emotion", m_topic_size_global = 10,
                            n_neighbours_BERTopic_global = 15, umap_n_components_BERTopic_global = 5, emotion_labels = None,
                            summarization_model = None, temperature_summarization_model = 0.3,
-                           summary_table_topics_report_show = False, Three_dimensions_umap = False, marker_size_umap_overview = 1):
+                           summary_table_topics_report_show = False, Three_dimensions_umap = False, marker_size_umap_overview = 1, max_len_texts = 512):
     '''
     Run LinguaLoupe pipeline
     '''
@@ -38,7 +38,8 @@ def run_sentiment_pipeline(text_data, title, text_col, cols_keep_text,
                             csv_sep=csv_sep,
                             divide_in_chunks=ch_size,
                             convert_to_string=False, language=lang, m_type=model_type, clean_html_text=clean_html,
-                            perform_sentiment_classification=sent_class, sent_device=sentiment_device, labels=emotion_labels)
+                            perform_sentiment_classification=sent_class, sent_device=sentiment_device, labels=emotion_labels,
+                            max_length_data = max_len_texts)
 
     if sentiment_classification:
         # Count ammount of text for each group.
