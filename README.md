@@ -40,6 +40,16 @@ The URL above shows an exploratory analysis performed with LinguaLoupe on a coll
 
 LinguaLopue can be installed alongside its dependencies with _pipx_, either through a Wheel file or via the repository itself.
 
+### Through GitHub repository
+
+Pipx also allows you to install Command Line Tools from a repository URL.
+
+To install LinguaLoupe with this method, you just need to execute the following command.
+
+```
+pipx install --python python3.14 git+https://github.com/OSCAR-CASALS/LinguaLoupe.git
+```
+
 ### Wheel file
 
 First, download the wheel file for the latest LinguaLoupe version provided in this repository's [_releases_](https://github.com/OSCAR-CASALS/LinguaLoupe/releases).
@@ -62,16 +72,6 @@ The following commands can be used in Linux to download LinguaLoupe in a single 
 wget https://github.com/OSCAR-CASALS/LinguaLoupe/releases/download/v.0.5.3-alpha/lingualoupe-0.5.3a0-py3-none-any.whl
 
 pipx install --python python3.14 lingualoupe-0.5.3a0-py3-none-any.whl
-```
-
-### Through GitHub repository
-
-Pipx also allows to install Command Line Tools from a repository URL.
-
-To install LinguaLoupe with this method, you just need to execute the following command.
-
-```
-pipx install --python python3.14 git+https://github.com/OSCAR-CASALS/LinguaLoupe.git
 ```
 
 ## Dependencies
