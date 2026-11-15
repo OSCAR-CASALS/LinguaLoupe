@@ -38,24 +38,25 @@ The URL above shows an exploratory analysis performed with LinguaLoupe on a coll
 
 ## Installation
 
-LinguaLopue can be installed alongside it's dependencies with _pipx_, either through a Wheel file or via the repository itself.
+LinguaLopue can be installed alongside its dependencies with _pipx_, either through a Wheel file or via the repository itself.
 
 ### Wheel file
 
-To do it, you'll need the wheel file of the most recent version of  provided in [_releases_](https://github.com/OSCAR-CASALS/LinguaLoupe/releases).
+First, download the wheel file for the latest LinguaLoupe version provided in this repository's [_releases_](https://github.com/OSCAR-CASALS/LinguaLoupe/releases).
 
-Once downloaded, you can simply run pipx install. You can specify a python version installed in your system with --python or remove this argument to use the default one.
+Once downloaded, you can simply run pipx install. You can specify a Python version installed on your system with --python or remove this argument to use the default one.
 
 ```
 pipx install --python python3.14 lingualoupe-0.5.3a0-py3-none-any.whl
 ```
 
 You can test if LinguaLoupe has been installed correctly through the following command.
+
 ```
 lingualoupe --version
 ```
 
-The following commands can be used in linux to download LinguaLoupe in one single step
+The following commands can be used in Linux to download LinguaLoupe in a single step
 
 ```
 wget https://github.com/OSCAR-CASALS/LinguaLoupe/releases/download/v.0.5.3-alpha/lingualoupe-0.5.3a0-py3-none-any.whl
@@ -65,9 +66,9 @@ pipx install --python python3.14 lingualoupe-0.5.3a0-py3-none-any.whl
 
 ### Through GitHub repository
 
-Pipx also allows to install Command Line Tools from a repositoris url.
+Pipx also allows to install Command Line Tools from a repository URL.
 
-To install LinguaLoupe with this method you just need to execute the following command.
+To install LinguaLoupe with this method, you just need to execute the following command.
 
 ```
 pipx install --python python3.14 git+https://github.com/OSCAR-CASALS/LinguaLoupe.git
@@ -93,7 +94,7 @@ For running LinguaLoupe, Python version 3.14.6 and the following libraries are r
 |Wordcloud                       |1.9.6    |A word cloud generator in Python.|
 |Matplotlib                      |3.11.0   |A comprehensive library for creating static, animated, and interactive visualizations in Python.|
 
-If the user wants to run LinguaLoupe from source, it can be done by installing all dependencies required through the conda or pip environments provided:
+If the user wants to run LinguaLoupe from source, it can be done by installing all required dependencies through the conda or pip environments provided and then running the script LinguaLoupe.py:
 
 - Install dependencies with pip through using the provided _requirements.txt_
 
@@ -111,7 +112,7 @@ conda env create -f environment.yml
 
 ## Usage
 
-To run the pipeline, it is just needed to run the command _lingualoupe_ with the following arguments:
+To run the pipeline, you just need to run the command _lingualoupe_ with the following arguments:
 
 |Abreviation            |Long argument              |Name                     |Description|
 |-----------------------|---------------------------|-------------------------|---------|
@@ -127,12 +128,12 @@ Additionally, it is possible to set multiple optional parameters so the output f
 
 |Abreviation                |Long argument               |Name                      |Description|
 |---------------------------|----------------------------|--------------------------|-----------|
-|-ti                        |--title                     |TITLE                     |Title of the report,if not specified it will be the same as the file containig the collection of texts.|
+|-ti                        |--title                     |TITLE                     |Title of the report; if not specified, it will be the same as the file containing the collection of texts.|
 |-ckt                       |--Columns_to_Keep_Text      |COLUMNS_TO_KEEP_TEXT      |If there are any columns in TEXT_DATA you want to keep in _Text.csv_, specify them with this argument.   |
-|-gbc                       |--group_by_column           |GROUP_BY_COLUMN           |Columns in TEXT_DATA by which to group by when summerizing the information, the results can be found in the file _Summary.csv_ inside the output directory. To group by more than one column define this argument multiple times (for example: -gbc Year -gbc Country).|
+|-gbc                       |--group_by_column           |GROUP_BY_COLUMN           |Columns in TEXT_DATA by which to group by when summarizing the information; the results can be found in the file _Summary.csv_ inside the output directory. To group by more than one column, define this argument multiple times (for example: -gbc Year -gbc Country).|
 |-mean                        |--mean_text                 |MEAN_TEXT                 |Columns in TEXT_DATA to compute the mean of in _Summary.csv_. The mean will be computed separately for each group obtained from GROUP_BY_COLUMN; if none has been specified, this metric will be computed globally.|
 |-sum                        |--sum_text                  |SUM_TEXT                  |Columns in TEXT_DATA to sum in _Summary.csv_. The addition will be computed separately for each group obtained from GROUP_BY_COLUMN; if none has been specified, this metric will be computed globally.|
-|-umap_colour               |--umap_colour               |UMAP_COLOUR               |Column in COLUMNS_TO_KEEP_TEXT by which the UMAP shown in the report will be coloured, this parameter can be specified more than once in case you want to generate multiple UMAPs coloured by different values.|
+|-umap_colour               |--umap_colour               |UMAP_COLOUR               |Column in COLUMNS_TO_KEEP_TEXT by which the UMAP shown in the report will be coloured; this parameter can be specified more than once in case you want to generate multiple UMAPs coloured by different values.|
 |-col                       |--Category_Column              |CATEGORY_COLUMN              |Column by which to divide text in the report. By default, it is a new column called 'emotion' created by the pipeline.|
 |-csv_sep                   |--csv_separation            |CSV_SEPARATION            |In case a CSV file is used as input, specify the separation between values; it will be "," by default.|
 |-chunk_size                |--chunk_size                |CHUNK_SIZE                |Chunk size in which each text will be divided when performing sentiment classification. If not specified, each text won't be divided into chunks when performing sentiment classification. If a text is divided into chunks, the predominant emotion between all fragments will be the one selected for the text.|
@@ -152,7 +153,7 @@ Additionally, it is possible to set multiple optional parameters so the output f
 |-colors             |--report_colors      |REPORT_COLORS |Path to a JSON file specifying colours to be used for each category in the final HTML report. It must have the categories as keys and the colours as values.|
 |-summarize          |--summarization_model|SUMMARIZATION_MODEL|A text-generation Hugging Face model to summarize the 3 most representative texts of all topics into single sentences that will appear in Global_Topics.csv. If not set no summerization of topics will be performed.|
 |-temperature        |--summarization_model_temperature|SUMMARIZATION_MODEL_TEMPERATURE|Temperature of SUMMARIZATION_MODEL. It controls the randomness and creativity of the text the model generates; the lower the value, the more adjusted to the references the summaries will be.|
-|-max_len            |--maximum_length    |MAXIMUM_LENGTH|Maximum length of texts in Sentiment Classification, any texts that surpass it will be truncated.|
+|-max_len            |--maximum_length    |MAXIMUM_LENGTH|Maximum length of texts in Sentiment Classification; any texts that surpass it will be truncated.|
 
 ### Optional flag arguments
 
@@ -172,11 +173,11 @@ There are certain true and false parameters that affect how the pipeline works a
 
 Would you like to see what kind of reports LinguaLoupe generates? 
 
-Feel free to consult exploratory this analysis of chatgpt user reviews from 2024 that uses LinguaLoupe to explore the different topics present in the dataset and find out what people like and dislike about this chatbot.
+Feel free to consult this exploratory analysis of ChatGPT user reviews from 2024 that uses LinguaLoupe to explore the different topics present in the dataset and find out what people like and dislike about this chatbot.
 
 https://github.com/OSCAR-CASALS/Exploratory-analysis-of-2024-chatgpt-reviews-with-LinguaLoupe
 
-In set analysis, LinguaLoupe allows to notice certain patterns like most reviewers focusing on the app surrounding ChatGPT itself, rather than the chatbot, as well as noticing common patterns in the negative reviews like authenitification problems, phones overheating, lack of an IPad version...
+In set analysis, LinguaLoupe allows to notice certain patterns, like most reviewers focusing on the app surrounding ChatGPT itself, rather than in the chatbot, as well as noticing common patterns in the negative reviews like authentication problems, phones overheating, lack of an iPad version...
 
 ### Example of commands that can be built with LinguaLoupe
 
@@ -196,24 +197,24 @@ lingualoupe -ti News_topics -dt news.csv -text_c Description -min_topic_size 100
 
 The pipeline will always generate the following files:
 
-- **_report.html_**: An HTML report showing, through different visualizations, the results of the sentiment and topic analysis.
+- **_report.html_**: An HTML report showing, through different visualizations, the results of the sentiment and topic classification.
 
 - **_Summary.csv_**: A CSV file showing the summary metrics defined by the user (GROUP_BY_COLUMN, MEAN_TEXT, SUM_TEXT). If not defined, it will show the number of texts for each emotion when sentiment classification is performed, or nothing when it is not.
 
-- **_Texts.csv_**: A CSV file with all the texts considered in the analysis, it contains the following columns:
+- **_Texts.csv_**: A CSV file with all the texts considered in the analysis; it contains the following columns:
     + _text_: The texts that have been sentiment and topic analyzed.
     + _CATEGORY_COLUMN_: This is the column by which texts have been divided for a more in-depth topic analysis. When sentiment classification is performed, this will be the column _emotion_, and it will be supplemented by another column called _emotion\_score_ displaying the likelihood of the text belonging to the sentiment it has been classified as.
     + Any column specified by the user in COLUMNS_TO_KEEP_TEXT.
     + _global\_topic_: The topic a specific text belongs to according to the topic classification performed on all texts.
     + _global_probability_topic__: The probability of a text to belong to it's assigned _global\_topic_. 
     + _topic_: The topic the text has been included inside the category it belongs to (either _emotion_ or categories defined by the user with the argument CATEGORY_COLUMN).
-    + _probability\_topic_: The probability of a text to belong to it's assigned _topic_.
+    + _probability\_topic_: The probability of a text belonging to its assigned _topic_.
 
 - **_Global\_Topics.csv_**: A CSV file containing information about the topics detected in the topic classification performed on all texts. Specifically, it displays:
-    + The amount of times each topic appears.
+    + The number of times each topic appears.
     + The main words of each topic.
     + The c-TF-IDF score of each main word.
-    + If SUMMARIZATION_MODEL is defined, a column called LinguaLoupe_summary will appear showing a one-sentence summary of the 3 most representative texts of each topic. 
+    + If SUMMARIZATION_MODEL is defined, a column called LinguaLoupe_summary will appear, showing a one-sentence summary of the 3 most representative texts of each topic. 
 
 Additionally, if the flag REMOVE_CLASSIFICATION is not set, a CSV file for each category in CATEGORY_COLUMN will be created; each will contain:
 - The number of times each topic appears.
@@ -224,51 +225,51 @@ Additionally, if the flag REMOVE_CLASSIFICATION is not set, a CSV file for each 
 
 ### HTML Report
 
-The html reports generated by LinguaLoupe start with a section called _Summary_ that shows a general overview of the dataset, alongside some visualizations related to the global topic classification, specifically, it contains the following plots:
+The HTML reports generated by LinguaLoupe start with a section called _Summary_ that shows a general overview of the dataset, alongside some visualizations related to the global topic classification; specifically, it contains the following plots:
 
-- The ammount of texts for each sentiment (or other category selected by the user in the dataset)  
+- The number of texts for each sentiment (or other category selected by the user in the dataset)  
 ![Barplot](images/Barplot.png)
-- A boxplot with the ammount of words for each text, divided by sentiment or user-defined category.
+- A boxplot with the number of words for each text, divided by sentiment or user-defined category.
 ![Boxplot](images/Boxplot.png)
-- A collection of umaps coloured by the columns specified by the user, by default it is only coloured by sentiment. The UMAPs can be either 2D or 3D.
+- A collection of UMAPs coloured by the columns specified by the user; by default, it is only coloured by sentiment. The UMAPs can be either 2D or 3D.
     + Example of 2D UMAP.
     ![Umap](images/UMAP_Reviews.png)
     + Example of 3D UMAP.
     ![3D_UMAP](images/3D_UMAP.png)
-- A word cloud showing the most frequent words across all reviews independent of sentiment, the bigger the word the most frequent it is.
+- A word cloud showing the most frequent words across all reviews, independent of sentiment; the bigger the word, the more frequent it is.
 ![wordcloud_Summary](images/WordCloud_Overview.png)
-- A barplot showing the ammount of times a global topic appears across all reviews.
+- A barplot showing the number of times a global topic appears across all reviews.
 ![Barplot_summary_topics](images/Overview_Barplot.png)
-- An intertopic distance map based on the embeddings from the embedding model, showing how similar the topics are between them.
+- An intertopic distance map based on the embeddings from the embedding model, showing how similar the topics are to each other.
 ![Intertopic_distance_summary](images/Overview_topics_Umap.png)
-- A hierarchical tree based on the c-TF-IDF representations of the topics showing how similar the topics are between them.
+- A hierarchical tree based on the c-TF-IDF representations of the topics, showing how similar the topics are to each other.
 ![hierarchical_summary](images/hierarchical_summary.png)
-- The most meaningfull words of each topic alongside their c-TF-IDF scores.
+- The most meaningful words of each topic alongside their c-TF-IDF scores.
 ![topic_word_scores_summary](images/Topic_word_scores.png)
 
 - A heatmap displaying the similarity between topics.
 ![similarity_matrix](images/heatmap.png)
 
-Following it, there are different sections for each sentiment or user defined category, each containing the following:
+Following it, there are different sections for each sentiment or user-defined category, each containing the following:
 
 - A wordcloud.
 
 - The top 10 trigrams.
 ![trigrams](images/Negative_Trigrams.png)
 
-- The ammount of times each Global Topic appears in the texts of set category.
+- The number of times each Global Topic appears in the texts of set category.
 ![Global_Topics_Negative](images/Global_Topics_Negative.png)
 
-- The ammount of times each topic from the topic classification specific to the category appear.
+- The number of times each topic from the topic classification specific to the category appears.
 ![Topics_negative](images/Topics_Negative.png)
 
-- The same plots used in the _Summary_ section to show topic information and similarity, but applied to the appropiate topic classifcation. These visualizations are:
+- The same plots used in the _Summary_ section to show topic information and similarity, but applied to the appropriate topic classification. These visualizations are:
 
     + An intertopic distance map
 
     + A hierarchical tree
 
-    + The most meaningfull words of each topic alongside their c-TF-IDF scores.
+    + The most meaningful words of each topic alongside their c-TF-IDF scores.
 
     + A heatmap displaying the similarity between topics. 
 
@@ -278,9 +279,10 @@ This repository is divided as follows:
 
 |File or Directory name|Description|
 |----------------------|-----------|
-|LinguaLoupe.py        |The python script that must be executed to run the pipeline.|
+|LinguaLoupe.py        |The Python script that must be executed to run the pipeline.|
 |src                   |Directory containing all functions the pipeline uses.|
 |requirements.txt      |The tools needed to run the program.|
+|environment.yaml      |Conda environment capable of running the pipeline.|
 |LICENSE.txt           |License of the program.|
 |labels                |A directory containing an example of the format JSONs used by the argument LABELS must follow.|
 |colors                |A directory containing an example of the format JSONs used by the argument REPORT_COLORS must follow.|
@@ -318,7 +320,7 @@ The following updates are planned for the end of 2027:
 
 - Desktop app that will allow users to use the pipeline outside the Command Line.
 - Add more customization to the report.
-- Adapt HTML reports so they can be observed through phone screens.
+- Adapt HTML reports so they can be viewed on phone screens.
 
 ## Warnings
 
