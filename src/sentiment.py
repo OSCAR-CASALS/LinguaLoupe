@@ -8,13 +8,21 @@ from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassifica
 def load_classification_model_hugging_face(
         model_name="cardiffnlp/twitter-roberta-base-sentiment",
         device = -1,
-        max_l = 512
+        max_l = 512,
+        batch_size_sentiment = 1
     ):
     '''
     Load sentiment classification model from hugging face
     '''
 
-    classifier = pipeline("sentiment-analysis", model=model_name, device=device, max_length = max_l, truncation = True)
+    classifier = pipeline(
+        "sentiment-analysis",
+        model=model_name,
+        device=device,
+        max_length = max_l,
+        truncation = True,
+        batch_size = batch_size_sentiment
+    )
     
     return classifier
 
@@ -23,15 +31,17 @@ def classify_sentiment_text_hugging_face(text, classification_model, dictionary_
     Classify a text and return the results
     '''
 
-    result = classification_model(text)[0]
+    # Classify all texts.
+    result = classification_model(text)
 
-    if dictionary_labels is not None:
-        return {
-            'label': dictionary_labels[result['label']],
-            'score': result['score']
-        }
+    labels = []
+    scores = []
 
-    return {
-        'label': result['label'],
-        'score': result['score']
-    }
+    # If there are dictionary labels, loop through the list and asign each label to its equivalent.
+    for entry in result:
+        if dictionary_labels is not None:
+            entry['label'] = dictionary_labels[entry['label']]
+        labels.append(entry['label'])
+        scores.append(entry['score'])
+
+    return labels, scores

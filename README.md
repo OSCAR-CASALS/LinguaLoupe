@@ -154,6 +154,7 @@ Additionally, it is possible to set multiple optional parameters so the output f
 |-summarize          |--summarization_model|SUMMARIZATION_MODEL|A text-generation Hugging Face model to summarize the 3 most representative texts of all topics into single sentences that will appear in Global_Topics.csv. If not set no summerization of topics will be performed.|
 |-temperature        |--summarization_model_temperature|SUMMARIZATION_MODEL_TEMPERATURE|Temperature of SUMMARIZATION_MODEL. It controls the randomness and creativity of the text the model generates; the lower the value, the more adjusted to the references the summaries will be.|
 |-max_len            |--maximum_length    |MAXIMUM_LENGTH|Maximum length of texts in Sentiment Classification; any texts that surpass it will be truncated.|
+|-batch_size         |--batch_size        |BATCH_SIZE    |Batch Size for sentiment classification, 1 by default.|
 
 ### Optional flag arguments
 
@@ -298,21 +299,11 @@ This repository is divided as follows:
 
 ## Current Version
 
-LinguaLoupe is currently on version v.0.5.3-alpha.
+LinguaLoupe is currently on version v.0.5.4-alpha.
 
 ## What's new compared to the previous version?
 
-- Fixed bug on the UMAP's overview code.
-
-- Created parameter THREE_DIMENSIONAL_UMAP which allows to create 3 component UMAPs in the html report's overview that can be explored in a 3d space.
-
-- Created parameter MARKER_SIZE_UMAP_OVERVIEW to adjust the size of the dots in the UMAP present in the html report's overview.
-
-- Removed Pysentimiento dependency.
-
-- Added _pyproject.toml_ file and pipx wheel file. Updated README with instructions on how to install LinguaLoupe via pipx.
-
-- Added MAX_LENGTH parameter.
+- Added BATCH SIZE parameter.
 
 ## Planned updates
 

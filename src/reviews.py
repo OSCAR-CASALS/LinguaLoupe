@@ -18,7 +18,8 @@ def clean_html(text):
 def process_reviews(data_path, text_column, csv_sep = ",",
                     columns_to_keep = [],
                     convert_to_string = False, divide_in_chunks = 512, language = "english", m_type="social_media",
-                    clean_html_text = True, perform_sentiment_classification = True, sent_device = -1, labels = None, max_length_data = 512):
+                    clean_html_text = True, perform_sentiment_classification = True, sent_device = -1, labels = None, max_length_data = 512,
+                    batch_size = 1):
     '''
     A function in charge of classifiying texts into positive, negative, or neutral.
     '''
@@ -83,23 +84,19 @@ def process_reviews(data_path, text_column, csv_sep = ",",
             columns_to_keep.remove("emotion_score")
             
         # loading model
-        model = load_classification_model_hugging_face(model_name=m_type, device=sent_device, max_l = max_length_data)
+        model = load_classification_model_hugging_face(
+            model_name=m_type,
+            device=sent_device,
+            max_l = max_length_data,
+            batch_size_sentiment=batch_size
+        )
 
-        # Loading appropiate tokenizer just to check if the length of the text to classify exceeds 512.
-        if divide_in_chunks is not None:
-            tokenizer = AutoTokenizer.from_pretrained(m_type, use_fast=True)
+        def classify_texts_in_chunks(texts_list):
             
-
-        # Classify texts
-
-        def classify_sentiments(text):
-            '''
-            Function that performs Sentiment classification.
-            '''
-
-            if divide_in_chunks is not None:
-                # If the size of the text is bigger than the user's specified chunk size,
-                # split it.
+            # Divide texts in chunks and save the number of chunks for each text.
+            group_sizes = []
+            decoded_chunks_list = []
+            for text in texts_list:
                 tokenized_text = tokenizer(
                     text,
                     max_length=divide_in_chunks,
@@ -110,65 +107,85 @@ def process_reviews(data_path, text_column, csv_sep = ",",
                     return_tensors='pt'
                 )["input_ids"]
 
-                t_size = len(tokenized_text)
+                # Compute and save number of chunks
+                group_sizes.append(len(tokenized_text))
+                # Decode chunks
+                decoded_chunks = tokenizer.batch_decode(tokenized_text, skip_special_tokens=True)
+                # Save all chunks into a single non-nested list.
+                for c in decoded_chunks:
+                    decoded_chunks_list.append(c)
+
+            # Perform sentiment classification for all chunks equally
+            sentiment, scores_classification = classify_sentiment_text_hugging_face(
+                text = decoded_chunks_list,
+                classification_model = model,
+                dictionary_labels = labels
+            )
+
+            # Iterate in groups, use group_sizes list to rebuild chunks and compute their predominant emotion and mean score.
+            start = 0
+            results_emotions = []
+            results_scores = []
+            for size in group_sizes:
+                sentiments_text = sentiment[start:start + size]
+                scores_text = scores_classification[start:start + size]
+
+                # Keep the ammount of chunks assigned to each emotion with their corresponding score.
+                labels_dictionary_chunks = {}
+                scores = {}
+
+                for sent, score in zip(sentiments_text, scores_text):
+                    # Keep results in respective dictionaries
+                    if sent in labels_dictionary_chunks:
+                        labels_dictionary_chunks[sent] += 1
+                        scores[sent].append(score)
+                    else:
+                        labels_dictionary_chunks[sent] = 1
+                        scores[sent] = [score]
+
+                # Select the predominant and compute the average score for set emotion.
+
+                max_value = max(labels_dictionary_chunks.values())
+                predominant_emotions = [k for k, v in labels_dictionary_chunks.items() if v == max_value]
+                final_mean_scores = []
                 
-                if (t_size > 1):
+                for em in predominant_emotions:
+                    final_mean_scores.append(statistics.mean(scores[em]))
+                
+                results_emotions.append('-'.join(predominant_emotions))
+                results_scores.append(final_mean_scores)
 
-                    # Apply classification to each fragment of the text divided in chunks
+                start += size
+            
+            return results_emotions, results_scores
 
-                    labels_dictionary_chunks = {}
-                    scores = {}
+        # Classify texts
+        
+        if divide_in_chunks is not None:
+            # Loading appropiate tokenizer just to check if the length of the text to classify exceeds 512.
+            tokenizer = AutoTokenizer.from_pretrained(m_type, use_fast=True)
 
-                    for chunk_ids in tokenized_text:
-                        iter_text = tokenizer.decode(chunk_ids, skip_special_tokens=True)
-                        sentiment = classify_sentiment_text_hugging_face(
-                            text = iter_text,
-                            classification_model = model,
-                            dictionary_labels = labels
-                            )
+            # Classify texts into emotions.
+            sentiment_label, scores_classification = classify_texts_in_chunks(
+                texts_list=data[text_column].tolist()
+            )
 
-                        # Keep results in respective dictionaries
-                        sent = sentiment["label"]
+            data["emotion"] = sentiment_label
+            data["emotion_score"] = scores_classification
 
-                        if sent in labels_dictionary_chunks:
-                            labels_dictionary_chunks[sent] += 1
-                            scores[sent].append(sentiment["score"])
-                        else:
-                            labels_dictionary_chunks[sent] = 1
-                            scores[sent] = [sentiment["score"]]
-
-                    max_value = max(labels_dictionary_chunks.values())
-                    predominant_emotions = [k for k, v in labels_dictionary_chunks.items() if v == max_value]
-                    final_mean_scores = []
-
-                    for em in predominant_emotions:
-                        final_mean_scores.append(statistics.mean(scores[em]))
-
-                    return ['-'.join(predominant_emotions), final_mean_scores]
-
-                    
-            # If the text has less tokens than chunk_size, just classify the whole text.
-            # The scores are returned in a list for consistency with the results of text with
-            # a high ammount of tokens.
-            sentiment = classify_sentiment_text_hugging_face(
-                text = text,
+        else:
+            # Process all texts using the user specified batch size.
+            sentiment_label, scores_classification = classify_sentiment_text_hugging_face(
+                text = data[text_column].tolist(),
                 classification_model=model,
                 dictionary_labels=labels
             )
 
-            return [sentiment["label"], [sentiment["score"]]]
+            data["emotion"] = sentiment_label
+            data["emotion_score"] = scores_classification
 
-        # Classify texts into emotions.
-        data["review_emotion"] = data[text_column].apply(classify_sentiments)
-
-        # Dividing review emotion into two columns, one with the label assifgned by classify_text_sentiment and the
-        # other with the score assigned to the classification.
-
-        data["emotion"] = data["review_emotion"].str[0]
-        data["emotion_score"] = data["review_emotion"].str[1]
-
-        # Removing column review_emotion since it is redundant.
-        data.drop("review_emotion", axis=1, inplace=True)
+            
+            #data["review_emotion"] = data[text_column].apply(classify_sentiments)
 
         # Adding emotion and emotion_score to the columns that must be selected
         columns_selected.extend(["emotion", "emotion_score"])

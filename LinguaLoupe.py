@@ -88,7 +88,7 @@ def main():
     parser.add_argument("-show_topics", "--show_representative_docs_and_summaries", action="store_true", help="If you want the most representative texts of each topic, as well as the AI summaries created with SUMMARIZATION_MODEL if defined, to appear in the html report as a table set this flag.")
 
     parser.add_argument("-max_len", "--maximum_length", type=int, default=512, help="Maximum length of texts in Sentiment Classification, any texts that surpass it will be truncated.")
-
+    parser.add_argument("-batch_size", "--batch_size", type=int, default=1, help="Batch Size for sentiment classification, 1 by default.")
     args = parser.parse_args()
 
     # Check if nltk stopwords are installed
@@ -261,6 +261,8 @@ def main():
 
     max_length = args.maximum_length
 
+    batch_size_sent = args.batch_size
+
     run_sentiment_pipeline(text_data = text_data,
                         title = title,
                         text_col = text_col,
@@ -296,7 +298,8 @@ def main():
                         summary_table_topics_report_show = show_summaries_report,
                         Three_dimensions_umap=Three_Dimensional_UMAP,
                         marker_size_umap_overview = Marker_Size,
-                        max_len_texts = max_length)
+                        max_len_texts = max_length,
+                        batch_size_sentiment=batch_size_sent)
 
     return 0
 
