@@ -57,7 +57,7 @@ First, download the wheel file for the latest LinguaLoupe version provided in th
 Once downloaded, you can simply run pipx install. You can specify a Python version installed on your system with --python or remove this argument to use the default one.
 
 ```
-pipx install --python python3.14 lingualoupe-0.5.4a0-py3-none-any.whl
+pipx install --python python3.14 lingualoupe-0.5.3a0-py3-none-any.whl
 ```
 
 You can test if LinguaLoupe has been installed correctly through the following command.
@@ -69,9 +69,9 @@ lingualoupe --version
 The following commands can be used in Linux to download LinguaLoupe in a single step
 
 ```
-wget https://github.com/OSCAR-CASALS/LinguaLoupe/releases/download/v.0.5.4-alpha/lingualoupe-0.5.4a0-py3-none-any.whl
+wget https://github.com/OSCAR-CASALS/LinguaLoupe/releases/download/v.0.5.3-alpha/lingualoupe-0.5.3a0-py3-none-any.whl
 
-pipx install --python python3.14 lingualoupe-0.5.4a0-py3-none-any.whl
+pipx install --python python3.14 lingualoupe-0.5.3a0-py3-none-any.whl
 ```
 
 ## Dependencies

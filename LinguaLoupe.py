@@ -11,7 +11,7 @@ warnings.filterwarnings(
 # If argument VERSION is being used, display LinguaLoupe version and quit.
 arguments_command_line = sys.argv[1:]
 if ('-v' in  arguments_command_line) or ('--version' in arguments_command_line):
-    print('v.0.5.3-alpha.')
+    print('v.0.5.4-alpha.')
     sys.exit()
 
 from src.run_pipeline import run_sentiment_pipeline
