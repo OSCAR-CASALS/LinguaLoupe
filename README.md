@@ -57,7 +57,7 @@ First, download the wheel file for the latest LinguaLoupe version provided in th
 Once downloaded, you can simply run pipx install. You can specify a Python version installed on your system with --python or remove this argument to use the default one.
 
 ```
-pipx install --python python3.14 lingualoupe-0.5.4a0-py3-none-any.whl
+pipx install --python python3.14 lingualoupe-0.5.5a0-py3-none-any.whl
 ```
 
 You can test if LinguaLoupe has been installed correctly through the following command.
@@ -69,9 +69,9 @@ lingualoupe --version
 The following commands can be used in Linux to download LinguaLoupe in a single step
 
 ```
-wget https://github.com/OSCAR-CASALS/LinguaLoupe/releases/download/v.0.5.4-alpha/lingualoupe-0.5.4a0-py3-none-any.whl
+wget https://github.com/OSCAR-CASALS/LinguaLoupe/releases/download/v.0.5.5-alpha/lingualoupe-0.5.5a0-py3-none-any.whl
 
-pipx install --python python3.14 lingualoupe-0.5.4a0-py3-none-any.whl
+pipx install --python python3.14 lingualoupe-0.5.5a0-py3-none-any.whl
 ```
 
 ## Dependencies
@@ -215,7 +215,9 @@ The pipeline will always generate the following files:
     + The number of times each topic appears.
     + The main words of each topic.
     + The c-TF-IDF score of each main word.
-    + If SUMMARIZATION_MODEL is defined, a column called LinguaLoupe_summary will appear, showing a one-sentence summary of the 3 most representative texts of each topic. 
+    + If SUMMARIZATION_MODEL is defined, a column called LinguaLoupe_summary will appear, showing a one-sentence summary of the 3 most representative texts of each topic.
+
+  - **_Arguments.json_**: A JSON file with all the arguments the user gave to LinguaLoupe.
 
 Additionally, if the flag REMOVE_CLASSIFICATION is not set, a CSV file for each category in CATEGORY_COLUMN will be created; each will contain:
 - The number of times each topic appears.
@@ -304,6 +306,8 @@ LinguaLoupe is currently on version v.0.5.4-alpha.
 ## What's new compared to the previous version?
 
 - Added BATCH SIZE parameter.
+
+- A Json will be generated alongside the output files with the arguments the user gave lingualoupe.
 
 ## Planned updates
 
