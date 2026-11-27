@@ -1,6 +1,6 @@
 [project]
 name = "lingualoupe"
-version = "0.5.4-alpha"
+version = "0.5.5-alpha"
 description = "Exploratory data analysis tool that combines sentiment classification with BERTopic to discover what a collection of texts is about and how its authors feel about those topics. Results are shown in an html report containing visualizations and csv files with topic information."
 authors = [
     {name = "OSCAR-CASALS",email = "casals.400010@gmail.com"}

@@ -11,7 +11,7 @@ warnings.filterwarnings(
 # If argument VERSION is being used, display LinguaLoupe version and quit.
 arguments_command_line = sys.argv[1:]
 if ('-v' in  arguments_command_line) or ('--version' in arguments_command_line):
-    print('v.0.5.4-alpha.')
+    print('v.0.5.5-alpha.')
     sys.exit()
 
 from src.run_pipeline import run_sentiment_pipeline
@@ -300,6 +300,69 @@ def main():
                         marker_size_umap_overview = Marker_Size,
                         max_len_texts = max_length,
                         batch_size_sentiment=batch_size_sent)
+
+    # Create file with user inputs.
+    not_clean_html = c_html
+    if c_html == False:
+        not_clean_html = True
+    else:
+        not_clean_html = False
+
+    remove_class = r_classification
+    if r_classification == True:
+        remove_class = False
+    else:
+        remove_class = True
+
+    high_memory_bertopic = l_memory
+    if l_memory == False:
+        high_memory_bertopic = True
+    else:
+        high_memory_bertopic = False
+
+    inputs_dir = {
+        'TEXT_DATA': text_data,
+        'TITLE': title,
+        'TEXT_COLUMN': text_col,
+        'COLUMNS_TO_KEEP_TEXT': cols_keep_text,
+        'GROUP_BY_COLUMN': count_text_group,
+        'MEAN_TEXT': mean_text_cols,
+        'SUM_TEXT': sum_text_cols,
+        'OUTPUT_DIRECTORY': output_directory,
+        'CSV_SEPARATiON': csv_sep,
+        'CHUNK_SIZE': ch_size,
+        'MINIMUM_TOPIC_SIZE': m_topic_size,
+        'LANGUAGE': lang,
+        'UMAP_COLOUR': u_col,
+        'UMAP_METRIC': umap_metric_d,
+        'UMAP_N_NEIGHBOURS': neighbours_umap,
+        'UMAP_MIN_DIST': min_dist_umap,
+        'MODEL_NAME': m_type,
+        'UMAP_N_NEIGHBORS_BERTOPIC': n_neighbours_BERTopic,
+        'UMAP_N_COMPONENTS_BERTOPIC': n_components_BERTopic,
+        'UMAP_HIGH_MEMROY_BERTOPIC': high_memory_bertopic,
+        'NOT_CLEAN_HTML': not_clean_html, 
+        'SHOW_TABLES': show_tables,
+        'REMOVE_CLASSIFICATION': remove_class,
+        'EMBEDDING_MODEL': emodel,
+        'DEVICE': sent_dev,
+        'CATEGORY_COLUMN': gr_col,
+        'MINIMUM_TOPIC_SIZE_GLOBAL': m_topic_size_global,
+        'UMAP_N_NEIGHBORS_BERTOPIC_GLOBAL': n_neighbours_BERTopic_global,
+        'UMAP_N_COMPONENTS_BERTOPIC_GLOBAL': n_components_BERTopic_global,
+        'LABELS': labels_dictionary,
+        'SUMMARIZATION_MODEL': summ_model,
+        'SUMMARIZATION_MODEL_TEMPERATURE': temp_model_summary,
+        'SHOW_REPRESENTATIVE_DOCS_AND_SUMMARIES': show_summaries_report,
+        'THREE_DIMENSIONAL_UMAP': Three_Dimensional_UMAP,
+        'MAREKER_SIZE_UMAP_OVERVIEW': Marker_Size,
+        'MAXIMUM_LENGTH': max_length,
+        'BATCH_SIZE': batch_size_sent
+    }
+
+    inputs_json_path = os.path.join(output_directory, 'Arguments.json')
+    with open(inputs_json_path, 'w') as fp:
+        json.dump(inputs_dir, fp)
 
     return 0
 
